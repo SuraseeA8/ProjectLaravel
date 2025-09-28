@@ -1,0 +1,47 @@
+/* Navbar container */
+.navbar {
+    background-color: #e68a2e; /* สีส้ม */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 40px;
+}
+
+/* Logo */
+.navbar .logo {
+    font-size: 22px;
+    font-weight: bold;
+    color: white;
+}
+
+/* Menu */
+.navbar .menu {
+    list-style: none;
+    display: flex;
+    gap: 30px;
+    background: #fff5c4;
+    padding: 10px 30px;
+    border-radius: 25px;
+    margin: 0;
+}
+
+.navbar .menu li {
+    display: inline;
+}
+
+.navbar .menu li a {
+    text-decoration: none;
+    color: #222;
+    font-weight: 500;
+    transition: color 0.2s;
+}
+
+.navbar .menu li a:hover {
+    color: #e68a2e; /* hover ส้ม */
+}
+
+/* Active menu */
+.navbar .menu li a.active {
+    color: #e68a2e;
+    font-weight: bold;
+}

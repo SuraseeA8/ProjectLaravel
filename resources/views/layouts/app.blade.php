@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" href="{{ asset('css/navbar_vendor.css') }}">
+    <title>@yield('title', 'ระบบจองตลาดนัด')</title>
+</head>
+<body>
+    <header>
+        <nav class="navbar">
+            <div class="logo">Market Booking</div>
+            <ul class="menu">
+                @guest
+                    {{-- ยังไม่ login --}}
+                    <li><a href="{{ route('index') }}">หน้าแรก</a></li>
+                    <li><a href="{{ route('vendor.events') }}">ข่าวสาร</a></li>
+                    <li><a href="{{ route('login') }}">เข้าสู่ระบบ</a></li>
+                    <li><a class="btn" href="{{ route('register') }}">สมัครสมาชิก</a></li>
+                @endguest
+
+                @auth
+                    {{-- login แล้ว --}}
+                    <li><a href="{{ route('index') }}">หน้าแรก</a></li>
+                    <li><a href="{{ route('vendor.events') }}">ข่าวสาร</a></li>
+                    <li><a href="{{ route('profile.edit') }}">บัญชีผู้ใช้</a></li>
+                    <li>
+                        <form method="POST" action="{{ route('logout') }}">
+                            @csrf
+                            <button type="submit" class="btn">ออกจากระบบ</button>
+                        </form>
+                    </li>
+                @endauth
+            </ul>
+        </nav>
+    </header>
+
+    <main class="container">
+        @yield('content')
+    </main>
+
+    <footer class="footer">
+        <p>© {{ date('Y') }} ระบบจองตลาดนัด | พัฒนาโดย ทีมโครงงาน</p>
+    </footer>
+</body>
+</html>

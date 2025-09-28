@@ -1,0 +1,94 @@
+/* Reset */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    background: #f9fafb;
+    color: #333;
+}
+
+/* Container */
+.container {
+    max-width: 1200px;
+    margin: auto;
+    padding: 2rem;
+    min-height: 80vh;
+}
+
+/* Navbar */
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: white;
+    padding: 1rem 2rem;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+.navbar-logo {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #16a34a;
+}
+
+.navbar-menu {
+    list-style: none;
+    display: flex;
+    gap: 1.5rem;
+    align-items: center;
+}
+
+.navbar-menu a {
+    text-decoration: none;
+    color: #333;
+    font-weight: 500;
+    transition: 0.3s;
+}
+
+.navbar-menu a:hover {
+    color: #16a34a;
+}
+
+/* ปุ่มสมัครสมาชิก */
+.btn {
+    background: #16a34a;
+    color: white !important;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    transition: 0.3s;
+}
+
+.btn:hover {
+    background: #15803d;
+}
+
+/* ปุ่ม Logout */
+.logout-btn {
+    background: transparent;
+    border: none;
+    color: #e11d48;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.logout-btn:hover {
+    color: #be123c;
+}
+
+/* Footer */
+.footer {
+    text-align: center;
+    padding: 1rem;
+    background: white;
+    border-top: 1px solid #eee;
+    margin-top: 2rem;
+    color: #666;
+}
