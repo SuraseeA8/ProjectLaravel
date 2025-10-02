@@ -4,138 +4,264 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+
+
 use App\Models\Stall;
+use App\Models\Stall_Status;
 use App\Models\Booking;
 use App\Models\Payment;
 use App\Models\Status;
+use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 
 class VendorController extends Controller
-{   
-    // ✅ แสดงหน้าหลักของ Vendor
-    public function showHome()
+{
+    /* ---------------------------
+     * หน้าแรกผู้ขาย / สรุปย่อ
+     * --------------------------- */
+    public function showHome(Request $request)
     {
-        return view('vendor.home'); 
+        $ym = $this->resolveYearMonth($request);
+        $y = $ym['year']; $m = $ym['month'];
+
+        $user = Auth::user();
+
+        $stats = [
+            'bookings_total'   => Booking::where('user_id', $user->id)->count(),
+            'bookings_pending' => Booking::where('user_id', $user->id)->where('status_id', Status::PENDING)->count(),
+            'bookings_approved'=> Booking::where('user_id', $user->id)->where('status_id', Status::UNAVAILABLE)->count(),
+        ];
+
+        return view('vendor.home', compact('stats','y','m'));
     }
 
-    /**
-     * แสดงหน้ารายการล็อก (ตรวจสอบสถานะ)
-     */
-    public function stallList()
+    /* ---------------------------
+     * โปรไฟล์
+     * --------------------------- */
+    public function showProfile()
     {
-        // ดึงล็อกจาก DB + โซน
-        $stalls = Stall::with('zone')->orderBy('stall_id', 'asc')->get();
-        return view('vendor.stalls', compact('stalls'));
+        return view('vendor.profile', ['user' => Auth::user()]);
     }
 
-    /**
-     * แสดงรายละเอียดล็อก
-     */
-    public function stallDetail($id)
+    public function updateProfile(Request $request)
     {
-        $stall = Stall::with('zone')->findOrFail($id);
-        return view('vendor.stall_detail', compact('stall'));
+        $data = $request->validate([
+            'name'  => 'required|string|max:150',
+            'email' => 'required|email:rfc,dns|max:190|unique:users,email,' . Auth::id(),
+        ]);
+
+        /** @var User $user */
+        $user = Auth::user();
+        $user->update($data);
+
+        return back()->with('ok', 'อัปเดตโปรไฟล์เรียบร้อย');
     }
 
-    /**
-     * จองล็อก
-     */
-    public function bookStall(Request $request, $id)
+    /* ---------------------------
+     * รายการล็อก (แสดงกริดตามเดือน)
+     * --------------------------- */
+    public function stallList(Request $request)
     {
-        $stall = Stall::findOrFail($id);
+        $ym = $this->resolveYearMonth($request);
+        $y = $ym['year']; $m = $ym['month'];
 
-        if ($stall->status != 'available') {
-            return redirect()->back()->with('error', 'ล็อกนี้ไม่ว่างแล้ว');
+        // สถานะรายเดือนทั้งหมด keyBy stall_id
+        $statuses = Stall_Status::with('status')
+            ->where('year', $y)->where('month', $m)
+            ->get()->keyBy('stall_id');
+
+        $stalls = Stall::with('zone')
+            ->where('is_active', true)
+            ->orderByRaw('zone_id, stall_code')
+            ->get()
+            ->map(function ($s) use ($statuses) {
+                $st = $statuses->get($s->stall_id);
+                $sid = $st->status_id ?? Status::AVAILABLE;
+                return [
+                    'stall'       => $s,
+                    'status_id'   => $sid,
+                    'status_name' => match ($sid) {
+                        Status::AVAILABLE   => 'ว่าง',
+                        Status::UNAVAILABLE => 'ไม่ว่าง',
+                        Status::PENDING     => 'รออนุมัติ',
+                        Status::CLOSED      => 'ปิดให้จอง',
+                    },
+                ];
+            });
+
+        return view('vendor.stalls.index', compact('stalls','y','m'));
+    }
+
+    /* ---------------------------
+     * รายละเอียดล็อก + ปฏิทินสถานะ
+     * --------------------------- */
+    public function stallDetail(Request $request, Stall $stall)
+    {
+        $ym = $this->resolveYearMonth($request);
+        $y = $ym['year']; $m = $ym['month'];
+
+        $monthStatus = Stall_Status::with('status')
+            ->where('stall_id', $stall->stall_id)
+            ->where('year', $y)->where('month', $m)->first();
+
+        return view('vendor.stalls.show', compact('stall','monthStatus','y','m'));
+    }
+
+    /* ---------------------------
+     * ทำการจอง (PENDING)
+     * --------------------------- */
+    public function bookStall(Request $request, Stall $stall)
+    {
+        $this->authorizeActiveStall($stall);
+
+        $data = $request->validate([
+            'year'  => 'required|integer|min:2000|max:2100',
+            'month' => 'required|integer|min:1|max:12',
+        ]);
+        $y = (int)$data['year']; $m = (int)$data['month'];
+
+        // กันชน: ถ้าเดือนนั้นเป็น 2/3/4 = จองไม่ได้
+        $busy = Stall_Status::where('stall_id', $stall->stall_id)
+            ->where('year', $y)->where('month', $m)
+            ->whereIn('status_id', [Status::UNAVAILABLE, Status::PENDING, Status::CLOSED])
+            ->exists();
+
+        if ($busy) {
+            return back()->withErrors(['month' => 'เดือนนี้ล็อกนี้ไม่ว่างแล้ว'])->withInput();
         }
 
-        // หา status_id ของ "pending"
-        $statusPending = Status::where('name', 'pending')->first();
+        DB::transaction(function () use ($stall, $y, $m) {
+            $booking = Booking::create([
+                'user_id'   => Auth::id(),
+                'stall_id'  => $stall->stall_id,
+                'year'      => $y,
+                'month'     => $m,
+                'status_id' => Status::PENDING,
+            ]);
 
-        $booking = Booking::create([
-            'user_id'   => Auth::id(),
-            'stall_id'  => $stall->stall_id,
-            'month'     => date('m'),
-            'year'      => date('Y'),
-            'status_id' => $statusPending->id ?? 1, // fallback ถ้าไม่เจอ
-        ]);
+            // เผื่อเครื่องคุณยังไม่ได้ตั้ง Trigger AFTER INSERT ให้ upsert ด้วย
+            Stall_Status::updateOrCreate(
+                ['stall_id' => $stall->stall_id, 'year' => $y, 'month' => $m],
+                [
+                    'status_id'  => Status::PENDING,
+                    'booking_id' => $booking->booking_id,
+                    'user_id'    => Auth::id(),
+                    'reason'     => 'รอยืนยันสลิป',
+                    'updated_at' => now(),
+                ]
+            );
+        });
 
-        // อัปเดตสถานะล็อก
-        $stall->update(['status' => 'pending']);
-
-        return redirect()->route('vendor.booking.slip', $booking->id)
-            ->with('success', 'ทำการจองเรียบร้อย กรุณาอัปโหลดสลิป');
+        return redirect()->route('vendor.booking.status')->with('ok', 'ยื่นจองสำเร็จ กรุณาอัปโหลดสลิปเพื่อยืนยัน');
     }
 
-    /**
-     * ฟอร์มอัปโหลดสลิป
-     */
-    public function uploadSlipForm($id)
+    /* ---------------------------
+     * สถานะการจองของฉัน
+     * --------------------------- */
+    public function bookingStatus(Request $request)
     {
-        $booking = Booking::with('stall')->findOrFail($id);
-        return view('vendor.upload_slip', compact('booking'));
+        $items = Booking::with(['stall.zone','status'])
+            ->where('user_id', Auth::id())
+            ->orderByDesc('created_at')
+            ->paginate(12);
+
+        return view('vendor.bookings.index', compact('items'));
     }
 
-    /**
-     * บันทึกสลิป
-     */
-    public function storeSlip(Request $request, $id)
+    /* ---------------------------
+     * ยกเลิกใบจอง (ของฉันเท่านั้น) -> คืนสถานะเป็น AVAILABLE
+     * --------------------------- */
+    public function cancelBooking(Request $request, Booking $booking)
     {
-        $request->validate([
-            'slip' => 'required|mimes:jpg,jpeg,png,pdf|max:2048',
-        ]);
+        if ($booking->user_id !== Auth::id()) {
+            abort(403);
+        }
+        if ($booking->status_id !== Status::PENDING) {
+            return back()->withErrors(['cancel' => 'อนุมัติแล้วหรือยกเลิกไปแล้ว ยกเลิกไม่ได้']);
+        }
 
-        $booking = Booking::with('stall')->findOrFail($id);
+        DB::transaction(function () use ($booking) {
+            $booking->update(['status_id' => Status::AVAILABLE]);
+
+            // ถ้าไม่มีทริกเกอร์ AFTER UPDATE ให้ sync เอง
+            Stall_Status::where('stall_id', $booking->stall_id)
+                ->where('year', $booking->year)->where('month', $booking->month)
+                ->update([
+                    'status_id'  => Status::AVAILABLE,
+                    'reason'     => 'ผู้ใช้ยกเลิก',
+                    'booking_id' => null,
+                    'updated_at' => now(),
+                ]);
+        });
+
+        return back()->with('ok', 'ยกเลิกใบจองเรียบร้อย');
+    }
+
+    /* ---------------------------
+     * อัปโหลดสลิป: ฟอร์ม + บันทึก
+     * --------------------------- */
+    public function uploadSlipForm(Request $request, Booking $booking)
+    {
+        $this->authorizeBookingOwner($booking);
+        if ($booking->status_id !== Status::PENDING) {
+            return back()->withErrors(['slip' => 'อัปโหลดได้เฉพาะใบจองที่รออนุมัติ']);
+        }
+        return view('vendor.bookings.upload-slip', compact('booking'));
+    }
+
+    public function storeSlip(Request $request, Booking $booking)
+    {
+        $this->authorizeBookingOwner($booking);
+
+        $data = $request->validate([
+            'amount' => 'nullable|numeric|min:0',
+            'slip'   => 'required|file|mimes:jpg,jpeg,png,pdf|max:4096',
+        ]);
 
         $path = $request->file('slip')->store('slips', 'public');
 
-        // หา status_id ของ "pending"
-        $statusPending = Status::where('name', 'pending')->first();
-
-        Payment::create([
-            'booking_id' => $booking->id,
-            'amount'     => $booking->stall->price + $booking->stall->deposit,
-            'slip_image' => $path,
-            'status_id'  => $statusPending->id ?? 1,
+        $booking->payments()->create([
+            'amount'    => $data['amount'] ?? null,
+            'slip_path' => $path,
+            'mime'      => $request->file('slip')->getClientMimeType(),
         ]);
 
-        return redirect()->route('vendor.booking.status')
-            ->with('success', 'อัปโหลดสลิปเรียบร้อย รอการตรวจสอบ');
+        return redirect()->route('vendor.booking.status')->with('ok', 'อัปโหลดสลิปเรียบร้อย รอแอดมินตรวจสอบ');
     }
 
-    /**
-     * แสดงสถานะการจอง
-     */
-    public function bookingStatus()
-    {
-        $bookings = Booking::with(['stall', 'payment', 'status'])
-            ->where('user_id', Auth::id())
-            ->get();
-
-        return view('vendor.booking_status', compact('bookings'));
-    }
-
-    /**
-     * ยกเลิกการจอง
-     */
-    public function cancelBooking($id)
-    {
-        $booking = Booking::with('stall')->findOrFail($id);
-
-        if ($booking->user_id != Auth::id()) {
-            abort(403, 'Unauthorized action.');
-        }
-
-        // หา status_id ของ "cancelled"
-        $statusCancelled = Status::where('name', 'cancelled')->first();
-
-        $booking->update(['status_id' => $statusCancelled->id ?? 3]);
-        $booking->stall->update(['status' => 'available']);
-
-        return redirect()->route('vendor.booking.status')
-            ->with('success', 'ยกเลิกการจองเรียบร้อยแล้ว');
-    }
-
+    /* ---------------------------
+     * กระดานข่าว/กิจกรรม
+     * --------------------------- */
     public function eventBoard()
     {
-        return view('vendor.events');
+        // ถ้ามี Model Event ก็ใช้ Event::latest()->paginate(10)
+        $events = DB::table('event')->orderByDesc('start_date')->paginate(10);
+        return view('vendor.events.index', compact('events'));
+    }
+
+    /* ---------------------------
+     * helpers
+     * --------------------------- */
+    private function resolveYearMonth(Request $request): array
+    {
+        $now = Carbon::now('Asia/Bangkok');
+        return [
+            'year'  => (int)($request->input('year')  ?? $now->year),
+            'month' => (int)($request->input('month') ?? $now->month),
+        ];
+    }
+
+    private function authorizeActiveStall(Stall $stall): void
+    {
+        if (! $stall->is_active) {
+            abort(403, 'ล็อกนี้ปิดใช้งาน');
+        }
+    }
+
+    private function authorizeBookingOwner(Booking $booking): void
+    {
+        if ($booking->user_id !== Auth::id()) {
+            abort(403);
+        }
     }
 }

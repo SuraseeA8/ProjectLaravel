@@ -3,6 +3,8 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use App\Models\Booking;
 use App\Models\Stall_status;
 use App\Models\Payment;
@@ -10,30 +12,28 @@ use App\Models\Payment;
 
 class Status extends Model
 {
+    use HasFactory;
+
     protected $table = 'status';
     protected $primaryKey = 'status_id';
-    public $timestamps = false; // ถ้าไม่มี created_at / updated_at
+    public $timestamps = false;
 
-    protected $fillable = [
-        'status_name',
-    ];
+    protected $fillable = ['status_name','status_code'];
 
-    // ความสัมพันธ์กับการจอง
-    public function bookings()
+    // ค่ามาตรฐานไว้ใช้ในโค้ด
+    public const AVAILABLE   = 1;
+    public const UNAVAILABLE = 2;
+    public const PENDING     = 3;
+    public const CLOSED      = 4;
+
+    public function stallStatuses(): HasMany
     {
-        return $this->hasMany(Booking::class, 'status_id');
+        return $this->hasMany(Stall_Status::class, 'status_id', 'status_id');
     }
 
-    // ความสัมพันธ์กับสถานะล็อก
-    public function stallStatuses()
+    public function bookings(): HasMany
     {
-        return $this->hasMany(Stall_status::class, 'status_id');
-    }
-
-    // ความสัมพันธ์กับการชำระเงิน
-    public function payments()
-    {
-        return $this->hasMany(Payment::class, 'status');
+        return $this->hasMany(Booking::class, 'status_id', 'status_id');
     }
 
 

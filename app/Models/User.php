@@ -6,6 +6,10 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use App\Models\Booking;
+use App\Models\StallStatus;
+
 
 
 class User extends Authenticatable
@@ -48,5 +52,20 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    public function bookings(): HasMany
+    {
+        return $this->hasMany(Booking::class, 'user_id', 'id');
+    }
+
+    public function updatedStallStatuses(): HasMany
+    {
+        return $this->hasMany(Stall_Status::class, 'user_id', 'id');
+    }
+
+    public function isAdmin(): bool
+    {
+        return (int) $this->role_id === 1; // ปรับให้ตรงค่าจริงในตาราง role
     }
 }

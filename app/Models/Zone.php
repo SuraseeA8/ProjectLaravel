@@ -15,11 +15,11 @@ class Zone extends Model
     protected $primaryKey = 'zone_id';
     public $timestamps = false;
 
-    protected $fillable = ['zone_name'];
+    protected $fillable = ['zone_name', 'zone_code'];
 
     // ความสัมพันธ์กับ Stall
     public function stalls()
     {
-        return $this->hasMany(Stall::class, 'zone_id');
+        return $this->hasMany(Stall::class, 'zone_id', 'zone_id');
     }
 }

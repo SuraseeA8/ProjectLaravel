@@ -65,8 +65,9 @@ return [
     |
     */
 
-    'timezone' => 'UTC',
-
+    'timezone' => 'Asia/Bangkok',
+    'locale'   => 'th',
+    'faker_locale' => 'th_TH',
     /*
     |--------------------------------------------------------------------------
     | Application Locale Configuration
