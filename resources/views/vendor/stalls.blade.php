@@ -4,7 +4,6 @@
 
 @section('content')
     {{-- Flash --}}
-    {{-- Flash --}}
     @if (session('ok'))
         <div class="alert ok">{{ session('ok') }}</div>
         @endif
@@ -41,7 +40,7 @@
         <section class="zones">
         @foreach ($stalls->groupBy(fn($row)=>$row['stall']->zone->zone_name) as $zoneName => $rows)
             <article class="zone-card">
-            <h3>โซน {{ $zoneName }}</h3>
+            <h3>{{ $zoneName }}</h3>
 
             <div class="grid-stalls">
                 @foreach ($rows as $row)
