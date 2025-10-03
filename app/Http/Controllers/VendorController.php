@@ -122,9 +122,23 @@ class VendorController extends Controller
             'year'  => 'required|integer|min:2000|max:2100',
             'month' => 'required|integer|min:1|max:12',
         ]);
-        $y = (int)$data['year']; $m = (int)$data['month'];
+        $y = (int)$data['year']; 
+        $m = (int)$data['month'];
 
-        // กันชน: ถ้าเดือนนั้นเป็น 2/3/4 = จองไม่ได้
+        // ✅ ผู้ใช้คนนี้มีการจองในเดือนนี้ไปแล้วหรือยัง?
+        $already = Booking::where('user_id', Auth::id())
+            ->where('year', $y)
+            ->where('month', $m)
+            ->whereIn('status_id', [Status::PENDING, Status::UNAVAILABLE]) // นับเฉพาะที่ “ยังคงค้าง”
+            ->exists();
+
+        if ($already) {
+            return back()->withErrors([
+                'month' => 'คุณจองได้ 1 ล็อกต่อเดือนเท่านั้น (มีรายการในเดือนนี้อยู่แล้ว)',
+            ])->withInput();
+        }
+
+        // กันชน: ล็อกนี้เดือนนี้ไม่ว่าง / รออนุมัติ / ปิด
         $busy = Stall_Status::where('stall_id', $stall->stall_id)
             ->where('year', $y)->where('month', $m)
             ->whereIn('status_id', [Status::UNAVAILABLE, Status::PENDING, Status::CLOSED])
@@ -133,44 +147,59 @@ class VendorController extends Controller
         if ($busy) {
             return back()->withErrors(['month' => 'เดือนนี้ล็อกนี้ไม่ว่างแล้ว'])->withInput();
         }
+        try {
+            DB::transaction(function () use ($stall, $y, $m) {
+                $booking = Booking::create([
+                    'user_id'   => Auth::id(),
+                    'stall_id'  => $stall->stall_id,
+                    'year'      => $y,
+                    'month'     => $m,
+                    'status_id' => Status::PENDING,
+                ]);
 
-        DB::transaction(function () use ($stall, $y, $m) {
-            $booking = Booking::create([
-                'user_id'   => Auth::id(),
-                'stall_id'  => $stall->stall_id,
-                'year'      => $y,
-                'month'     => $m,
-                'status_id' => Status::PENDING,
-            ]);
-
-            // เผื่อเครื่องคุณยังไม่ได้ตั้ง Trigger AFTER INSERT ให้ upsert ด้วย
-            Stall_Status::updateOrCreate(
-                ['stall_id' => $stall->stall_id, 'year' => $y, 'month' => $m],
-                [
-                    'status_id'  => Status::PENDING,
-                    'booking_id' => $booking->booking_id,
-                    'user_id'    => Auth::id(),
-                    'reason'     => 'รอยืนยันสลิป',
-                    'updated_at' => now(),
-                ]
-            );
-        });
+                // เผื่อยังไม่มี trigger sync
+                Stall_Status::updateOrCreate(
+                    ['stall_id' => $stall->stall_id, 'year' => $y, 'month' => $m],
+                    [
+                        'status_id'  => Status::PENDING,
+                        'booking_id' => $booking->booking_id,
+                        'user_id'    => Auth::id(),
+                        'reason'     => 'รอยืนยันสลิป',
+                        'updated_at' => now(),
+                    ]
+                );
+            });
+        } catch (\Illuminate\Database\QueryException $ex) {
+            // ล็อกซ้ำ / user+month ซ้ำ
+            return back()->withErrors(['month' => 'คุณมีการจองในเดือนนี้อยู่แล้ว (1 คน/เดือน จองได้ 1 ล็อก)'])->withInput();
+        }
 
         return redirect()->route('vendor.booking.status')->with('ok', 'ยื่นจองสำเร็จ กรุณาอัปโหลดสลิปเพื่อยืนยัน');
     }
+
 
     /* ---------------------------
      * สถานะการจองของฉัน
      * --------------------------- */
     public function bookingStatus(Request $request)
     {
-        $items = Booking::with(['stall.zone','status'])
-            ->where('user_id', Auth::id())
-            ->orderByDesc('created_at')
-            ->paginate(12);
+        $ym = $this->resolveYearMonth($request);
+        $y  = (int)$ym['year'];
+        $m  = (int)$ym['month'];
 
-        return view('vendor.bookings.index', compact('items'));
+        $range = $request->input('range', 'month'); // 'month' | 'all'
+
+        $q = Booking::with(['stall.zone','status'])->where('user_id', Auth::id());
+
+        if ($range === 'month') {
+            $q->where('year', $y)->where('month', $m);
+        }
+
+        $items = $q->orderByDesc('created_at')->paginate(12)->appends(['range' => $range, 'year' => $y, 'month' => $m]); // ให้ paginator จำพารามิเตอร์
+
+        return view('vendor.bookings.index', compact('items','range','y','m'));
     }
+
 
     /* ---------------------------
      * ยกเลิกใบจอง (ของฉันเท่านั้น) -> คืนสถานะเป็น AVAILABLE
