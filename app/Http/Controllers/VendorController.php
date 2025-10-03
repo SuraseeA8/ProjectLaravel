@@ -62,34 +62,38 @@ class VendorController extends Controller
      * --------------------------- */
     public function stallList(Request $request)
     {
+        // รับ year/month เป็น ค.ศ. ตรง ๆ
         $ym = $this->resolveYearMonth($request);
-        $y = $ym['year']; $m = $ym['month'];
+        $y  = (int) $ym['year'];
+        $m  = (int) $ym['month'];
 
-        // สถานะรายเดือนทั้งหมด keyBy stall_id
-        $statuses = Stall_Status::with('status')
+        // ดึงสถานะรายเดือนทั้งหมด -> keyBy(stall_id)
+        $statuses = \App\Models\Stall_Status::query()
+            ->select(['stall_id','status_id'])
             ->where('year', $y)->where('month', $m)
             ->get()->keyBy('stall_id');
 
-        $stalls = Stall::with('zone')
+        // ดึงล็อกที่ใช้งาน + โซน แล้วแม็พสถานะ
+        $stalls = \App\Models\Stall::with('zone')
             ->where('is_active', true)
             ->orderByRaw('zone_id, stall_code')
             ->get()
             ->map(function ($s) use ($statuses) {
-                $st = $statuses->get($s->stall_id);
-                $sid = $st->status_id ?? Status::AVAILABLE;
+                $st  = $statuses->get($s->stall_id);
+                $sid = $st->status_id ?? \App\Models\Status::AVAILABLE;
                 return [
                     'stall'       => $s,
                     'status_id'   => $sid,
                     'status_name' => match ($sid) {
-                        Status::AVAILABLE   => 'ว่าง',
-                        Status::UNAVAILABLE => 'ไม่ว่าง',
-                        Status::PENDING     => 'รออนุมัติ',
-                        Status::CLOSED      => 'ปิดให้จอง',
+                        \App\Models\Status::AVAILABLE   => 'ว่าง',
+                        \App\Models\Status::UNAVAILABLE => 'ไม่ว่าง',
+                        \App\Models\Status::PENDING     => 'รออนุมัติ',
+                        \App\Models\Status::CLOSED      => 'ปิดให้จอง',
                     },
                 ];
             });
 
-        return view('vendor.stalls.index', compact('stalls','y','m'));
+        return view('vendor.stalls', compact('stalls','y','m'));
     }
 
     /* ---------------------------

@@ -1,34 +1,37 @@
-.container { max-width: 1100px; margin: 0 auto; }
-.page-title { text-align: center; font-weight: 800; font-size: 28px; margin: 10px 0 6px; }
-.filter-bar { display: flex; justify-content: center; align-items: center; gap: 10px; margin: 10px 0 18px; }
+/* โครงหน้า */
+.container { max-width: 1120px; margin: 0 auto; padding: 20px; }
 
-.legend { display: flex; gap: 18px; align-items: center; justify-content: center; margin: 6px 0 22px; }
-.legend .dot { width: 12px; height: 12px; border-radius: 999px; display: inline-block; margin-right: 6px; vertical-align: middle; }
+.alert { padding: 10px 14px; border-radius: 10px; margin: 10px 0; }
+.alert.ok  { background:#e8f6ee; color:#1b6b3a; }
+.alert.err { background:#fdecea; color:#932824; }
 
-/* สีสถานะ: 1=ว่าง, 2=ไม่ว่าง, 3=รออนุมัติ, 4=ปิดให้จอง */
-.dot.available { background: #2ecc71; }
-.dot.booked    { background: #f39c12; }
-.dot.pending   { background: #2980b9; }
-.dot.closed    { background: #bdc3c7; }
+.month-form { display:flex; gap:10px; align-items:center; margin: 10px 0 18px; }
+.month-form select, .month-form input { padding:8px 10px; border-radius:8px; border:1px solid #ddd; }
+.month-form button { padding:8px 14px; border-radius:8px; border:0; background:#f08c2b; color:#fff; font-weight:700; }
 
-.zones { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 22px; }
-@media (max-width: 900px){ .zones{ grid-template-columns: repeat(2, minmax(0,1fr)); } }
-@media (max-width: 600px){ .zones{ grid-template-columns: 1fr; } }
+.legend-wrap { margin-left:auto; display:flex; gap:8px; align-items:center; }
+.legend { padding:6px 10px; border-radius:18px; color:#fff; font-weight:600; font-size:14px; }
+.lg-available   { background:#4CAF50; }
+.lg-unavailable { background:#F29C38; }
+.lg-pending     { background:#1E74D6; }
+.lg-closed      { background:#BDBDBD; color:#222; }
 
-.zone { border: 2px solid #e07b25; border-radius: 16px; padding: 16px; background: #fffef9; }
-.zone h3 { font-weight: 800; font-size: 18px; text-align: center; margin-bottom: 12px; }
+.zones { display:grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap:18px; }
+.zone-card { border:2px solid #eea35b; border-radius:18px; padding:14px; background:#fff7ea; }
+.zone-card h3 { text-align:center; margin:8px 0 14px; }
 
-.stall-grid { display: grid; grid-template-columns: repeat(2, 86px); gap: 14px; justify-content: center; }
-.stall { width: 86px; height: 64px; border-radius: 12px; background: #e5e7eb;
-        display: flex; align-items: center; justify-content: center; font-weight: 700;
-        text-decoration: none; color: #111; transition: .08s; }
-.stall:hover { transform: translateY(-1px); }
+.grid-stalls { display:grid; grid-template-columns: repeat(2, minmax(90px,1fr)); gap:12px; }
 
-/* สีพื้นตามสถานะปัจจุบัน */
-.status-1 { background: #53dd53; } /* available */
-.status-2 { background: #c08231; } /* booked */
-.status-3 { background: #396fb5; } /* pending */
-.status-4 { background: #eeeeee; color: #8b8b8b; } /* closed */
+.btn-stall {
+        display:block; width:100%; padding:14px 0; border-radius:16px; border:0;
+        font-weight:700; letter-spacing:.3px; transition: transform .05s ease;
+}
+.btn-stall:active { transform: translateY(1px); }
 
-/* input month */
-#month { padding: 8px 10px; border: 1px solid #d0d0d0; border-radius: 10px; }
+/* สีสถานะ */
+.btn-available   { background:#4CAF50; color:#fff; }
+.btn-unavailable { background:#F29C38; color:#fff; }
+.btn-pending     { background:#1E74D6; color:#fff; }
+.btn-closed      { background:#BDBDBD; color:#222; }
+
+.btn-stall:disabled { filter: saturate(.85) brightness(.95); cursor: not-allowed; }
