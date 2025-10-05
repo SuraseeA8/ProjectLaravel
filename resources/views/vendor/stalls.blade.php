@@ -61,20 +61,13 @@
                     ]);
                 @endphp
 
-                <form method="POST"
-                        action="{{ route('vendor.stall.book', $stall->stall_id) }}"
-                        class="stall-form">
-                    @csrf
-                    <input type="hidden" name="year"  value="{{ $y }}">
-                    <input type="hidden" name="month" value="{{ $m }}">
-
-                    <button type="submit"
-                            class="btn-stall {{ $btnClass }}"
-                            title="สถานะ: {{ $row['status_name'] }}"
-                            @if($disabled) disabled @endif>
+                <a href="{{ route('vendor.stall.detail', $stall->stall_id) }}?year={{ $y }}&month={{ $m }}"
+                    class="btn-stall {{ $btnClass }}"
+                    title="สถานะ: {{ $row['status_name'] }}"
+                    aria-label="ล็อก {{ $stall->stall_code }} - {{ $row['status_name'] }}">
                     {{ $stall->stall_code }}
-                    </button>
-                </form>
+                </a>
+
                 @endforeach
             </div>
             </article>

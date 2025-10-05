@@ -38,7 +38,7 @@ class RegisteredUserController extends Controller
         ]);
 
         $user = User::create([
-            'role_id'     => 'vendor',
+            'role_id'     => 2, // 1=admin, 2=vendor
             'users_fname' => $request->users_fname,
             'users_lname' => $request->users_lname,
             'email'       => $request->email,

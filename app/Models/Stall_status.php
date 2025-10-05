@@ -18,7 +18,7 @@ class Stall_status extends Model
     use HasFactory;
 
     protected $table = 'stall_status';
-    protected $primaryKey = 'stall_status_id';
+    protected $primaryKey = 'stallstt_id';
 
     // ตารางนี้มีเฉพาะ updated_at (ตามแพตช์) → ปิด created_at
     public $timestamps = false;

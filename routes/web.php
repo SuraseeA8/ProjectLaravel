@@ -37,7 +37,7 @@ Route::prefix('vendor')->middleware(['auth'])->group(function () {
     // ล็อกตลาด (ดูได้เมื่อล็อกอินเท่านั้น)
     Route::get('stalls',[VendorController::class, 'stallList'])->name('vendor.stalls');
     Route::get('stalls/{stall}', [VendorController::class, 'stallDetail'])->name('vendor.stall.detail');
-    Route::post('stalls/{stall}/book', [VendorController::class, 'bookStall'])->name('vendor.stall.book');
+    Route::post('stalls/{stall}/book', [VendorController::class, 'bookStall'])->name('vendor.stall.book'); // จองล็อก
 
     // สถานะการจอง
     Route::get('booking/status', [VendorController::class, 'bookingStatus'])->name('vendor.booking.status');

@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Database\QueryException;
+use App\Models\User;
 
 
 use App\Models\Stall;
@@ -102,14 +104,36 @@ class VendorController extends Controller
     public function stallDetail(Request $request, Stall $stall)
     {
         $ym = $this->resolveYearMonth($request);
-        $y = $ym['year']; $m = $ym['month'];
+        $y  = (int) $ym['year'];
+        $m  = (int) $ym['month'];
 
+        // สถานะของล็อกในเดือน/ปีนี้
         $monthStatus = Stall_Status::with('status')
             ->where('stall_id', $stall->stall_id)
-            ->where('year', $y)->where('month', $m)->first();
+            ->where('year', $y)->where('month', $m)
+            ->first();
 
-        return view('vendor.stalls.show', compact('stall','monthStatus','y','m'));
+        // ผู้ใช้นี้มีใบจองเดือนนี้อยู่แล้วไหม (นับเฉพาะ active ถ้าคุณอยากให้ยกเลิกแล้วจองใหม่ได้)
+        $hasMyBookingThisMonth = Booking::where('user_id', Auth::id())
+            ->where('year', $y)->where('month', $m)
+            // ->whereIn('status_id', [Status::PENDING, Status::UNAVAILABLE]) // ใช้ถ้ายกเลิกแล้วให้จองใหม่ได้
+            ->exists();
+
+        // ตัดสินใจว่าจองได้ไหม และเหตุผล
+        $canBook = true;
+        $cannotReason = null;
+
+        if (! $stall->is_active) {
+            $canBook = false; $cannotReason = 'ล็อกนี้ปิดใช้งาน';
+        } elseif ($hasMyBookingThisMonth) {
+            $canBook = false; $cannotReason = 'คุณมีการจองในเดือนนี้อยู่แล้ว (1 คน/เดือน จองได้ 1 ล็อก)';
+        } elseif ($monthStatus && in_array($monthStatus->status_id, [Status::UNAVAILABLE, Status::PENDING, Status::CLOSED])) {
+            $canBook = false; $cannotReason = 'เดือนนี้ล็อกนี้ไม่ว่าง/รออนุมัติ/ปิดให้จอง';
+        }
+
+        return view('vendor.stall_detail', compact('stall','monthStatus','y','m','canBook','cannotReason'));
     }
+
 
     /* ---------------------------
      * ทำการจอง (PENDING)
@@ -169,9 +193,14 @@ class VendorController extends Controller
                     ]
                 );
             });
-        } catch (\Illuminate\Database\QueryException $ex) {
-            // ล็อกซ้ำ / user+month ซ้ำ
-            return back()->withErrors(['month' => 'คุณมีการจองในเดือนนี้อยู่แล้ว (1 คน/เดือน จองได้ 1 ล็อก)'])->withInput();
+        } catch (QueryException $ex) {
+            // ถ้าคุณมี unique index (user_id, year, month) จะเจอ 1062 ตอนกดชนพร้อมกัน
+            if (($ex->errorInfo[1] ?? null) === 1062) {
+                return back()->withErrors([
+                    'month' => 'คุณมีการจองในเดือนนี้อยู่แล้ว (1 คน/เดือน จองได้ 1 ล็อก)',
+                ])->withInput();
+            }
+            throw $ex;
         }
 
         return redirect()->route('vendor.booking.status')->with('ok', 'ยื่นจองสำเร็จ กรุณาอัปโหลดสลิปเพื่อยืนยัน');
@@ -197,7 +226,7 @@ class VendorController extends Controller
 
         $items = $q->orderByDesc('created_at')->paginate(12)->appends(['range' => $range, 'year' => $y, 'month' => $m]); // ให้ paginator จำพารามิเตอร์
 
-        return view('vendor.bookings.index', compact('items','range','y','m'));
+        return view('vendor.booking_status', compact('items','range','y','m'));
     }
 
 
