@@ -4,13 +4,25 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\VendorController;
 use App\Http\Controllers\AdminController;
+use Illuminate\Support\Facades\Auth;
+
+
+
 
 /*
 |--------------------------------------------------------------------------
 | Public Routes (ไม่ต้องล็อกอิน)
 |--------------------------------------------------------------------------
 */
-Route::get('/', fn () => view('index'))->name('index');
+Route::get('/', function () {
+    if (Auth::check()) {
+        $roleId = Auth::user()->role_id ?? null;
+        return $roleId == 1
+            ? redirect()->route('admin.stalls')
+            : redirect()->route('vendor.home');
+    }
+    return view('index'); // ยังไม่ล็อกอิน → หน้า landing
+})->name('index');
 
 /*
 |--------------------------------------------------------------------------

@@ -1,34 +1,34 @@
-public function bookingStatus(Request $request)
-{
-    // ถ้าผู้ใช้ไม่ได้ระบุ ให้ค่าเริ่มต้น = 'all'
-    $range = $request->input('range', 'all'); // 'month' | 'all'
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" href="{{ asset('css/navbar_vendor.css') }}">
+    <title>@yield('title', 'ระบบจองตลาดนัด')</title>
+</head>
+<body>
+    <header>
+        <nav class="navbar">
+            <div class="logo">Market Booking</div>
+            <ul class="menu">
+                @guest
+                    {{-- ยังไม่ login --}}
+                    <li><a href="{{ route('index') }}">หน้าแรก</a></li>
+                    <li><a href="{{ route('vendor.events') }}">ข่าวสาร</a></li>
+                    <li><a href="{{ route('login') }}">เข้าสู่ระบบ</a></li>
+                    <li><a class="btn" href="{{ route('register') }}">สมัครสมาชิก</a></li>
+                @endguest
+            </ul>
+        </nav>
+    </header>
 
-    // ใช้ eager load ความสัมพันธ์ที่หน้า view ใช้จริง
-    $q = Booking::with(['stall.zone', 'status', 'payments'])
-        ->where('user_id', Auth::id());
+    <main class="container">
+        @yield('content')
+    </main>
 
-    // ถ้าต้องการ “กรองเฉพาะเดือนนี้” แบบกดสลับได้ ให้รองรับพารามิเตอร์ด้วย
-    if ($range === 'month') {
-        $ym = $this->resolveYearMonth($request);
-        $y  = (int) $ym['year'];
-        $m  = (int) $ym['month'];
-        $q->where('year', $y)->where('month', $m);
-    }
-
-    $items = $q->orderByDesc('created_at')
-        ->paginate(12)
-        ->appends([
-            'range' => $range,
-            // แนบ year/month กลับไปเฉพาะตอนใช้โหมด month เพื่อให้ pagination จำพารามิเตอร์
-            'year'  => ($range === 'month') ? ($y ?? null) : null,
-            'month' => ($range === 'month') ? ($m ?? null) : null,
-        ]);
-
-    // ส่ง y/m เฉพาะตอนใช้โหมด month; ถ้า 'all' จะไม่ใช้ก็ได้
-    return view('vendor.booking_status', [
-        'items' => $items,
-        'range' => $range,
-        'y'     => $y ?? null,
-        'm'     => $m ?? null,
-    ]);
-}
+    <footer class="footer">
+        <p>© {{ date('Y') }} ระบบจองตลาดนัด | พัฒนาโดย ทีมโครงงาน</p>
+    </footer>
+</body>
+</html>
