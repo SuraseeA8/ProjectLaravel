@@ -21,18 +21,7 @@
                     <li><a class="btn" href="{{ route('register') }}">สมัครสมาชิก</a></li>
                 @endguest
 
-                @auth
-                    {{-- login แล้ว --}}
-                    <li><a href="{{ route('index') }}">หน้าแรก</a></li>
-                    <li><a href="{{ route('vendor.events') }}">ข่าวสาร</a></li>
-                    <li><a href="{{ route('profile.edit') }}">บัญชีผู้ใช้</a></li>
-                    <li>
-                        <form method="POST" action="{{ route('logout') }}">
-                            @csrf
-                            <button type="submit" class="btn">ออกจากระบบ</button>
-                        </form>
-                    </li>
-                @endauth
+
             </ul>
         </nav>
     </header>

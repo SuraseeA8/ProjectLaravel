@@ -214,22 +214,14 @@ class VendorController extends Controller
      * --------------------------- */
     public function bookingStatus(Request $request)
     {
-        $ym = $this->resolveYearMonth($request);
-        $y  = (int)$ym['year'];
-        $m  = (int)$ym['month'];
+        $items = Booking::with(['stall.zone','status','payments'])
+            ->where('user_id', Auth::id())
+            ->orderByDesc('created_at')
+            ->paginate(12);
 
-        $range = $request->input('range', 'month'); // 'month' | 'all'
-
-        $q = Booking::with(['stall.zone','status'])->where('user_id', Auth::id());
-
-        if ($range === 'month') {
-            $q->where('year', $y)->where('month', $m);
-        }
-
-        $items = $q->orderByDesc('created_at')->paginate(12)->appends(['range' => $range, 'year' => $y, 'month' => $m]); // ให้ paginator จำพารามิเตอร์
-
-        return view('vendor.booking_status', compact('items','range','y','m'));
+        return view('vendor.booking_status', compact('items'));
     }
+
 
 
     /* ---------------------------
@@ -421,8 +413,12 @@ class VendorController extends Controller
             );
         });
 
-        return redirect()->route('vendor.booking.status')
-            ->with('ok','ยืนยันการจองและอัปโหลดสลิปเรียบร้อย รอแอดมินตรวจสอบ');
+        return redirect()->route('vendor.booking.status', [
+            'range' => 'month',
+            'year'  => $y,
+            'month' => $m,
+        ])->with('ok', 'ยืนยันการจองและอัปโหลดสลิปเรียบร้อย รอแอดมินตรวจสอบ');
+
     }
 
 }
