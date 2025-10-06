@@ -17,11 +17,17 @@ class Payment extends Model
     public $timestamps = true;             // เพิ่ม created_at/updated_at แล้ว
 
     protected $fillable = [
-        'booking_id','amount','slip_path','mime'
+        'booking_id',
+        'acc_name',
+        'bank',
+        'payment_date',
+        'amount',
+        'slip_path',
     ];
 
     protected $casts = [
-        'amount' => 'decimal:2',
+        'payment_date' => 'date',    // แปลงเป็น Carbon instance
+        'amount'       => 'decimal:2',
     ];
 
     public function booking(): BelongsTo

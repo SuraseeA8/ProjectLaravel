@@ -287,7 +287,6 @@ class VendorController extends Controller
         $booking->payments()->create([
             'amount'    => $data['amount'] ?? null,
             'slip_path' => $path,
-            'mime'      => $request->file('slip')->getClientMimeType(),
         ]);
 
         return redirect()->route('vendor.booking.status')->with('ok', 'อัปโหลดสลิปเรียบร้อย รอแอดมินตรวจสอบ');
@@ -359,11 +358,14 @@ class VendorController extends Controller
 
     public function checkoutSubmit(Request $request, Stall $stall)
     {
-        $data = $request->validate([
-            'year'   => 'required|integer|min:2000|max:2100',
-            'month'  => 'required|integer|min:1|max:12',
-            'amount' => 'nullable|numeric|min:0',
-            'slip'   => 'required|file|mimes:jpg,jpeg,png,pdf|max:4096',
+            $data = $request->validate([
+                'year'         => 'required|integer|min:2000|max:2100',
+                'month'        => 'required|integer|min:1|max:12',
+                'acc_name'     => 'required|string|max:150',
+                'bank'         => 'required|string|max:100',
+                'payment_date' => 'required|date',              // <- ต้องมี
+                'amount'       => 'required|numeric|min:0.01',  // <- NOT NULL ในสคีมา
+                'slip'         => 'required|file|mimes:jpg,jpeg,png,pdf|max:4096',
         ]);
         $y = (int)$data['year']; $m = (int)$data['month'];
 
@@ -400,8 +402,11 @@ class VendorController extends Controller
 
             // 2) แนบสลิป
             $booking->payments()->create([
-                'amount'    => $data['amount'] ?? null,
-                'slip_path' => $path,
+                'acc_name'     => $data['acc_name'],
+                'bank'         => $data['bank'],
+                'payment_date' => $data['payment_date'],              // 'YYYY-MM-DD'
+                'amount'       => $data['amount'],
+                'slip_path'    => $path,
             ]);
 
             // 3) อัปเดตสถานะล็อกของเดือนนี้เป็น PENDING
