@@ -65,17 +65,16 @@
         {{-- ปุ่มจอง / เหตุผลที่จองไม่ได้ --}}
         <section class="mb-4">
             @if ($canBook)
-                <form method="POST" action="{{ route('vendor.stall.book', $stall->stall_id) }}">
-                    @csrf
-                    <input type="hidden" name="year"  value="{{ $y }}">
-                    <input type="hidden" name="month" value="{{ $m }}">
-                    <button type="submit" class="btn btn-primary">จองล็อกนี้</button>
-                </form>
+                <a href="{{ route('vendor.stall.checkout', $stall->stall_id) }}?year={{ $y }}&month={{ $m }}"class="btn btn-primary">
+                    จองล็อกนี้
+                </a>
+
             @else
                 <button type="button" class="btn btn-secondary" disabled>จองล็อกนี้</button>
                 <div class="text-danger mt-2">{{ $cannotReason }}</div>
             @endif
         </section>
+
 
         <a href="{{ route('vendor.stalls', ['year' => $y, 'month' => $m]) }}" class="btn">
             ← กลับไปหน้าล็อก

@@ -145,6 +145,8 @@ class VendorController extends Controller
         $data = $request->validate([
             'year'  => 'required|integer|min:2000|max:2100',
             'month' => 'required|integer|min:1|max:12',
+            'amount' => 'nullable|numeric|min:0',
+            'slip'   => 'required|file|mimes:jpg,jpeg,png,pdf|max:4096', // ✅ บังคับสลิป
         ]);
         $y = (int)$data['year']; 
         $m = (int)$data['month'];
@@ -268,7 +270,7 @@ class VendorController extends Controller
         if ($booking->status_id !== Status::PENDING) {
             return back()->withErrors(['slip' => 'อัปโหลดได้เฉพาะใบจองที่รออนุมัติ']);
         }
-        return view('vendor.bookings.upload-slip', compact('booking'));
+        return view('vendor.upload_slip.blade', compact('booking'));
     }
 
     public function storeSlip(Request $request, Booking $booking)
@@ -326,4 +328,96 @@ class VendorController extends Controller
             abort(403);
         }
     }
+
+    public function checkoutForm(Request $request, Stall $stall)
+    {
+        $y = (int) $request->query('year');
+        $m = (int) $request->query('month');
+
+        // ตรวจสิทธิ์เข้า checkout (กดดูได้เฉพาะที่จองได้จริง)
+        $monthStatus = Stall_Status::where('stall_id', $stall->stall_id)
+            ->where('year', $y)->where('month', $m)->first();
+
+        $hasMyBookingThisMonth = Booking::where('user_id', Auth::id())
+            ->where('year', $y)->where('month', $m)
+            ->whereIn('status_id', [Status::PENDING, Status::UNAVAILABLE])
+            ->exists();
+
+        $canBook = $stall->is_active
+            && ! $hasMyBookingThisMonth
+            && ! ($monthStatus && in_array($monthStatus->status_id, [
+                Status::UNAVAILABLE, Status::PENDING, Status::CLOSED
+            ]));
+
+        if (! $canBook) {
+            return redirect()->route('vendor.stall.detail', $stall->stall_id)
+                ->withErrors(['slip' => 'เงื่อนไขการจองไม่ผ่าน'])->withInput();
+        }
+
+        return view('vendor.upload_slip', compact('stall','y','m'));
+    }
+
+    public function checkoutSubmit(Request $request, Stall $stall)
+    {
+        $data = $request->validate([
+            'year'   => 'required|integer|min:2000|max:2100',
+            'month'  => 'required|integer|min:1|max:12',
+            'amount' => 'nullable|numeric|min:0',
+            'slip'   => 'required|file|mimes:jpg,jpeg,png,pdf|max:4096',
+        ]);
+        $y = (int)$data['year']; $m = (int)$data['month'];
+
+        // ห้ามมี booking (ยังคงค้าง) เดือนนี้อยู่แล้ว
+        $already = Booking::where('user_id', Auth::id())
+            ->where('year', $y)->where('month', $m)
+            ->whereIn('status_id', [Status::PENDING, Status::UNAVAILABLE])
+            ->exists();
+        if ($already) {
+            return back()->withErrors(['month'=>'คุณจองได้ 1 ล็อกต่อเดือนเท่านั้น'])->withInput();
+        }
+
+        // ล็อกนี้เดือนนี้ไม่ว่าง/ปิด?
+        $busy = Stall_Status::where('stall_id', $stall->stall_id)
+            ->where('year', $y)->where('month', $m)
+            ->whereIn('status_id', [Status::UNAVAILABLE, Status::PENDING, Status::CLOSED])
+            ->exists();
+        if ($busy || ! $stall->is_active) {
+            return back()->withErrors(['month'=>'เดือนนี้ล็อกนี้ไม่ว่างแล้ว'])->withInput();
+        }
+
+        // เก็บไฟล์สลิป
+        $path = $request->file('slip')->store('slips', 'public');
+
+        DB::transaction(function () use ($stall, $y, $m, $data, $path) {
+            // 1) สร้าง booking (PENDING)
+            $booking = Booking::create([
+                'user_id'   => Auth::id(),
+                'stall_id'  => $stall->stall_id,
+                'year'      => $y,
+                'month'     => $m,
+                'status_id' => Status::PENDING,
+            ]);
+
+            // 2) แนบสลิป
+            $booking->payments()->create([
+                'amount'    => $data['amount'] ?? null,
+                'slip_path' => $path,
+            ]);
+
+            // 3) อัปเดตสถานะล็อกของเดือนนี้เป็น PENDING
+            Stall_Status::updateOrCreate(
+                ['stall_id' => $stall->stall_id, 'year' => $y, 'month' => $m],
+                [
+                    'status_id'  => Status::PENDING,
+                    'booking_id' => $booking->booking_id,
+                    'user_id'    => Auth::id(),
+                    'reason'     => 'รอยืนยันสลิป',
+                ]
+            );
+        });
+
+        return redirect()->route('vendor.booking.status')
+            ->with('ok','ยืนยันการจองและอัปโหลดสลิปเรียบร้อย รอแอดมินตรวจสอบ');
+    }
+
 }

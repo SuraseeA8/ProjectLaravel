@@ -43,9 +43,15 @@ Route::prefix('vendor')->middleware(['auth'])->group(function () {
     Route::get('booking/status', [VendorController::class, 'bookingStatus'])->name('vendor.booking.status');
     Route::post('booking/{booking}/cancel', [VendorController::class, 'cancelBooking'])->name('vendor.booking.cancel');
     // อัปโหลดสลิป
-    Route::get('booking/{booking}/upload-slip',  [VendorController::class, 'uploadSlipForm'])->name('vendor.booking.slip');
-    Route::post('booking/{booking}/upload-slip', [VendorController::class, 'storeSlip']);
+    Route::get('booking/{booking}/upload-slip',  [VendorController::class, 'uploadSlipForm'])->name('vendor.booking.slip');// ฟอร์มอัปโหลดสลิป
+    Route::post('booking/{booking}/upload-slip', [VendorController::class, 'storeSlip']);// บันทึกสลิป
 
+    Route::get('stalls/{stall}/checkout',  [VendorController::class, 'checkoutForm'])
+        ->name('vendor.stall.checkout');
+    // ส่งฟอร์ม: สร้าง booking + payment + อัพเดต stall_status ในคราวเดียว
+    Route::post('stalls/{stall}/checkout', [VendorController::class, 'checkoutSubmit'])
+        ->name('vendor.stall.checkout.submit');
+        
     // ข่าวสาร/กิจกรรม
     Route::get('events', [VendorController::class, 'eventBoard'])->name('vendor.events');
 
