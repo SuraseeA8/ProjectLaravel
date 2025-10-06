@@ -20,8 +20,6 @@
                     <li><a href="{{ route('login') }}">เข้าสู่ระบบ</a></li>
                     <li><a class="btn" href="{{ route('register') }}">สมัครสมาชิก</a></li>
                 @endguest
-
-
             </ul>
         </nav>
     </header>
