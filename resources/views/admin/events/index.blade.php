@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <meta charset="UTF-8">
+    <title>จัดการกิจกรรม - Admin</title>
+    <link href="https://fonts.googleapis.com/css2?family=Kanit&display=swap" rel="stylesheet">
+    <style>
+        * {
+            padding: 0;
+            margin: 0;
+            box-sizing: border-box;
+            font-family: 'Kanit', sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        header {
+            background: #E68F36;
+            padding: 10px 50px;
+        }
+
+        .navbar-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            color: white;
+            margin: 0;
+        }
+
+        nav ul {
+            background-color: #FFFFCC;
+            list-style: none;
+            display: flex;
+            gap: 20px;
+            margin: 5px;
+            padding: 10px 20px;
+            border-radius: 50px;
+        }
+
+        .event a {
+            color: #E68F36;
+        }
+
+        nav ul li a {
+            color: black;
+            text-decoration: none;
+        }
+
+        main {
+            flex: 1;
+            padding: 20px;
+        }
+
+        footer {
+            background: #E68F36;
+            color: white;
+            text-align: center;
+            padding: 15px;
+        }
+
+        h2 {
+            margin-bottom: 20px;
+        }
+
+        .btn {
+            padding: 6px 12px;
+            border-radius: 6px;
+            text-decoration: none;
+        }
+
+        .btn-add {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .btn-del {
+            background: #f44336;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        th,
+        td {
+            border: 1px solid #ccc;
+            padding: 8px;
+            text-align: center;
+        }
+
+        th {
+            background: #E68F36;
+            color: white;
+        }
+
+        img {
+            max-width: 100px;
+            border-radius: 4px;
+        }
+
+        /* ให้เมนูหลักทั้งหมด align กลาง */
+        nav ul {
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            /* เมนูเรียงซ้าย */
+        }
+
+        /* ปรับสไตล์ dropdown ให้เหมือน li ปกติ */
+        nav ul li {
+            position: relative;
+        }
+
+        /* ตัวหลัก (บัญชีผู้ใช้) */
+        nav ul li.dropdown>a {
+            padding: 10px 20px;
+            border-radius: 50px;
+            background: #FFFFCC;
+            color: black;
+            text-decoration: none;
+            transition: 0.3s;
+        }
+
+        /* hover ที่ปุ่มหลัก */
+        nav ul li.dropdown>a:hover {
+            background: #E68F36;
+            color: white;
+        }
+
+        /* เมนูย่อย */
+        nav ul li.dropdown ul {
+            display: none;
+            position: absolute;
+            top: 100%;
+            right: 0;
+            /* จะลอยออกมาจากปุ่มบัญชีผู้ใช้ */
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+            list-style: none;
+            padding: 8px 0;
+            min-width: 180px;
+            z-index: 1000;
+        }
+
+        /* แสดงตอน hover */
+        nav ul li.dropdown:hover ul {
+            display: block;
+        }
+
+        /* item ด้านใน */
+        nav ul li.dropdown ul li a,
+        nav ul li.dropdown ul li button {
+            display: block;
+            width: 100%;
+            padding: 10px 15px;
+            color: #333;
+            text-decoration: none;
+            background: none;
+            border: none;
+            text-align: left;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        /* hover effect */
+        nav ul li.dropdown ul li a:hover,
+        nav ul li.dropdown ul li button:hover {
+            background: #f7f7f7;
+            color: #E68F36;
+        }
+
+
+        .event-card {
+            width: 100%;
+            max-width: 700px;
+            background: #fff;
+            border-radius: 15px;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+            overflow: hidden;
+            margin: 20px auto;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .event-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 12px 25px rgba(0, 0, 0, 0.25);
+        }
+
+        .event-image img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .actions{
+            margin-top: 12px;
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .btn-edit{
+            background: #2196F3;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+        }
+
+        .actions form{ display:inline; }   /* ให้ปุ่มลบวางเรียงกับปุ่มแก้ไข */
+
+    </style>
+</head>
+
+<body>
+    <header>
+        <div class="navbar-container">
+            <h1 class="logo">Market Booking</h1>
+            <!-- Navbar -->
+            <nav>
+                <ul>
+                    {{-- Guest --}}
+                    @guest
+                        <li class="home"><a href="{{ route('index') }}">หน้าแรก</a></li>
+                        <li><a href="{{ route('public.board') }}">ประกาศ</a></li>
+                        <li><a href="#">ติดต่อเรา</a></li>
+                        <li><a href="{{ route('login') }}">เข้าสู่ระบบ</a></li>
+                        <li><a href="{{ route('register') }}">ลงทะเบียน</a></li>
+                    @endguest
+
+                    {{-- Auth --}}
+                    @auth
+                        @if(Auth::user()->role_id == 2)
+                            <li class="home"><a href="{{ route('index') }}">หน้าแรก</a></li>
+                            <li><a href="{{ route('vendor.events') }}">ประกาศ</a></li>
+                            <li><a href="#">จองล็อก</a></li>
+                            <li><a href="#">รายการจอง</a></li>
+                            <li><a href="#">ติดต่อเรา</a></li>
+                            <li class="drop">บัญชีผู้ใช้
+                                <ul class="down">
+                                    <li><a href="#">แก้ไขบัญชีผู้ใช้</a></li>
+                                    <li>
+                                        <form method="POST" action="{{ route('logout') }}">
+                                            @csrf
+                                            <button type="submit" style="background:none;border:none;cursor:pointer;">
+                                                ออกจากระบบ
+                                            </button>
+                                        </form>
+                                    </li>
+                                </ul>
+                            </li>
+                        @endif
+
+                        @if(Auth::user()->role_id == 1)
+                            <li class="home"><a href="{{ route('index') }}">หน้าแรก</a></li>
+                            <li><a href="{{ route('admin.events.index') }}">จัดการอีเวนต์</a></li>
+                            <li><a href="{{ route('admin.stalls.index') }}">จัดการล็อก</a></li>
+                            <li><a href="#">จัดการผู้ใช้</a></li>
+                            <li><a href="{{ route('admin.booking.manage') }}">คำขออนุมัติ</a></li>
+                            <li><a href="{{ route('admin.reports.bookings') }}">รายงานการจอง</a></li>
+                            <li class="drop">บัญชีผู้ใช้
+                                <ul class="down">
+                                    <li><a href="#">แก้ไขบัญชีผู้ใช้</a></li>
+                                    <li>
+                                        <form method="POST" action="{{ route('logout') }}">
+                                            @csrf
+                                            <button type="submit" style="background:none;border:none;cursor:pointer;">
+                                                ออกจากระบบ
+                                            </button>
+                                        </form>
+                                    </li>
+                                </ul>
+                            </li>
+                        @endif
+                    @endauth
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <h2>จัดการกิจกรรม</h2>
+
+    <a href="{{ route('admin.events.create') }}" class="btn-add">➕ เพิ่มกิจกรรมใหม่</a>
+
+    @if(session('success'))
+        <p style="color: green; text-align:center;">{{ session('success') }}</p>
+    @endif
+
+    <div class="event-grid">
+        @forelse($events as $event)
+            <div class="event-card">
+                <div class="event-image">
+                    @if($event->img_path)
+                        <img src="{{ asset('storage/' . $event->img_path) }}" alt="{{ $event->title }}">
+                    @else
+                        <img src="https://via.placeholder.com/400x200?text=No+Image" alt="no image">
+                    @endif
+                </div>
+                <div class="event-body">
+                    <h3>{{ $event->title }}</h3>
+                    <p>{{ $event->detail }}</p>
+                    <p>เริ่ม: {{ \Carbon\Carbon::parse($event->start_date)->format('d/m/Y') }}</p>
+                    <p>สิ้นสุด: {{ \Carbon\Carbon::parse($event->end_date)->format('d/m/Y') }}</p>
+
+                    <div class="actions">
+                        {{-- แก้ไข --}}
+                        <a href="{{ route('admin.events.edit', $event) }}" class="btn btn-edit">แก้ไข</a>
+
+                        {{-- ลบ --}}
+                        <form action="{{ route('admin.events.destroy', $event) }}" method="POST"onsubmit="return confirm('ยืนยันลบ \"{{ $event->title }}\" ?');">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="btn btn-del">ลบ</button>
+                    </form>
+
+                    </div>
+                </div>
+
+        @empty
+            <p style="text-align:center;">ยังไม่มีกิจกรรม</p>
+        @endforelse
+    </div>
+</body>
+
+</html>

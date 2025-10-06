@@ -40,6 +40,7 @@ class Stall extends Model
         return $this->belongsTo(Zone::class, 'zone_id', 'zone_id');
     }
 
+
     /** ความสัมพันธ์สถานะรายเดือน */
     public function statuses(): HasMany
     {

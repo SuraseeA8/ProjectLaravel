@@ -4,11 +4,13 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\VendorController;
 use App\Http\Controllers\AdminController;
-use Illuminate\Support\Facades\Auth;
+use App\Http\Controllers\EventController;
+use App\Http\Controllers\ReportController;
+use Illuminate\Support\Facades\Auth; 
 
 
-
-
+use App\Http\Controllers\StallManageController;
+use App\Http\Controllers\UserController;
 /*
 |--------------------------------------------------------------------------
 | Public Routes (ไม่ต้องล็อกอิน)
@@ -23,6 +25,8 @@ Route::get('/', function () {
     }
     return view('index'); // ยังไม่ล็อกอิน → หน้า landing
 })->name('index');
+
+Route::get('/board', [EventController::class, 'board'])->name('board');
 
 /*
 |--------------------------------------------------------------------------
@@ -64,7 +68,6 @@ Route::prefix('vendor')->middleware(['auth'])->group(function () {
         
     // ข่าวสาร/กิจกรรม
     Route::get('events', [VendorController::class, 'eventBoard'])->name('vendor.events');
-
     // ❌ ไม่ต้องประกาศ logout เอง ถ้าใช้ Breeze/Fortify จะมี POST /logout จาก auth.php อยู่แล้ว
 });
 
@@ -75,26 +78,38 @@ Route::prefix('vendor')->middleware(['auth'])->group(function () {
 */
 Route::prefix('admin')->middleware(['auth','can:admin'])->group(function () {
     // การจัดการล็อก
-    Route::get('stalls', [AdminController::class, 'stallManagement'])->name('admin.stalls');
-    Route::post('stalls/{id}/toggle', [AdminController::class, 'toggleStall'])->whereNumber('id');
-    Route::post('stalls/{id}/cancel', [AdminController::class, 'cancelStall'])->whereNumber('id');
+    // Route::get('stalls', [AdminController::class, 'stalls'])->name('admin.stalls');
+    
+    
+    Route::get('/admin/stalls', [StallManageController::class, 'index'])->name('admin.stalls.index');
+
+
+    Route::get('/admin/stalls/toggle/{stall_id}/{month}/{year}', [StallManageController::class, 'toggleStatus'])->name('admin.stalls.toggle');
+
+    Route::get('/admin/users', [UserController::class, 'index'])->name('admin.users.index'); 
+    Route::post('/delete/{id}', [UserController::class, 'destroy'])->name('admin.users.delete');
+
+    Route::get('/admin/bookings', [StallManageController::class, 'manage'])->name('admin.booking.manage');
+    Route::get('/admin/bookings/approve/{id}', [StallManageController::class, 'approve'])->name('admin.booking.approve');
+    Route::get('/admin/bookings/cancel/{id}', [StallManageController::class, 'cancel'])->name('admin.booking.cancel');
 
     // การจัดการผู้ใช้
-    Route::get('users', [AdminController::class, 'userManagement'])->name('admin.users');
-    Route::delete('users/{id}', [AdminController::class, 'deleteUser'])->whereNumber('id');
+    
 
-    // การจัดการกิจกรรม
-    Route::get('events', [AdminController::class, 'eventManagement'])->name('admin.events');
-    Route::post('events/create', [AdminController::class, 'createEvent']);
-    Route::post('events/{id}/edit', [AdminController::class, 'editEvent'])->whereNumber('id');
+    // Event management
+    Route::get('events', [EventController::class, 'adminIndex'])->name('admin.events.index');
+    Route::get('events/create', [EventController::class, 'create'])->name('admin.events.create');
+    Route::post('events', [EventController::class, 'store'])->name('admin.events.store');
+    Route::get('events/{event}/edit', [EventController::class, 'edit'])->name('admin.events.edit');
+    Route::put('events/{event}', [EventController::class, 'update'])->name('admin.events.update');
+    Route::delete('events/{event}', [EventController::class, 'destroy'])->name('admin.events.destroy');
+
+    // Reports
+// Reports
+    Route::get('reports/bookings', [ReportController::class, 'bookingReport'])->name('admin.reports.bookings');
 
     // ตรวจสอบสลิป
-    Route::get('payments', [AdminController::class, 'paymentCheck'])->name('admin.payments');
-    Route::post('payments/{id}/approve', [AdminController::class, 'approvePayment'])->whereNumber('id');
-    Route::post('payments/{id}/reject',  [AdminController::class, 'rejectPayment'])->whereNumber('id');
-
-    // รายงาน
-    Route::get('reports', [AdminController::class, 'reportDashboard'])->name('admin.reports');
+    
 });
 
 /*

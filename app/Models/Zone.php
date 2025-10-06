@@ -22,4 +22,6 @@ class Zone extends Model
     {
         return $this->hasMany(Stall::class, 'zone_id', 'zone_id');
     }
+
+    
 }

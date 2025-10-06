@@ -73,5 +73,31 @@ class Booking extends Model
     }
 
 
+    public function adminuser()
+    {
+        
+        return $this->belongsTo(User::class, 'user_id', 'User_id');
+    }
+
+    public function adminstall()
+    {
+        // แก้ให้ตรงกับคีย์ในฐานข้อมูล (stall_id)
+        return $this->belongsTo(Stall::class, 'stall_id', 'stall_id');
+    }
+
+
+    public function payment()
+    {
+        return $this->hasOne(Payment::class, 'booking_id', 'booking_id');
+    }
+
+    public function stallStatus()
+    {
+        return $this->hasOne(Stall_status::class, 'stall_id', 'Stall_id')
+                    ->whereColumn('month', 'month')
+                    ->whereColumn('year', 'year')
+                    ->whereColumn('User_id', 'User_id');
+    }
+
 
 }

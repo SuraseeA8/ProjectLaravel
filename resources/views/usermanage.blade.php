@@ -1,4 +1,17 @@
-@extends('layouts.app')
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <title>การจัดการผู้ใช้</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat">
+    <style>
+        body { font-family: "Montserrat", sans-serif; }
+    </style>
+</head>
+<body class="p-4">
+    @extends('layouts.app')
 
 @section('title', 'การจัดการผู้ใช้')
 
@@ -7,10 +20,10 @@
     <h2 class="mb-3">ข้อมูลผู้ค้าและชื่อร้าน</h2>
 
     {{-- ค้นหา --}}
-    <form method="GET" action="{{ route('admin.users') }}" class="mb-3" style="max-width: 420px;">
+    <form method="GET" action="" class="mb-3" style="max-width: 420px;">
         <input type="text" name="keyword" class="form-control"
-               placeholder="ค้นหาชื่อ/นามสกุล/อีเมล..."
-               value="{{ request('keyword') }}">
+            placeholder="ค้นหาชื่อ/นามสกุล/อีเมล..."
+            value="{{ request('keyword') }}">
     </form>
 
     <table class="table table-striped">
@@ -35,8 +48,8 @@
             @php
                 // ตัวกรองแบบง่าย ๆ ในมุมมอง (ถ้าอยากให้ไว ให้ย้ายไป where ใน Controller)
                 $haystack = mb_strtolower(($user->users_fname ?? '')
-                          .($user->users_lname ?? '')
-                          .($user->email ?? ''), 'UTF-8');
+                        .($user->users_lname ?? '')
+                        .($user->email ?? ''), 'UTF-8');
                 $visible = ($kw === '') || str_contains($haystack, $kw);
 
                 // หา shop_name จากคอลเลกชัน $shops
@@ -54,12 +67,15 @@
                 <td>{{ $shopName }}</td>
                 <td class="text-center">
                     <form action="{{ route('admin.users.delete', $user->id) }}"
-                          method="POST"
-                          onsubmit="return confirm('คุณแน่ใจหรือไม่ว่าต้องการลบผู้ใช้นี้?');"
-                          class="d-inline">
+                        method="POST"
+                        onsubmit="return confirm('คุณแน่ใจหรือไม่ว่าต้องการลบผู้ใช้นี้?');"
+                        class="d-inline">
                         @csrf
-                        @method('DELETE')
-                        <button type="submit" class="btn btn-danger btn-sm">ลบ</button>
+                        <form action="{{ route('admin.users.delete', $user->id) }}" method="POST" 
+                            onsubmit="return confirm('คุณแน่ใจว่าจะลบผู้ใช้นี้?');">
+                            @csrf
+                            <button type="submit" class="btn btn-danger btn-sm">ลบ</button>
+                        </form>
                     </form>
                 </td>
             </tr>
@@ -70,3 +86,6 @@
     </table>
 </div>
 @endsection
+
+</body>
+</html>

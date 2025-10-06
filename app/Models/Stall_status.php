@@ -72,4 +72,15 @@ class Stall_status extends Model
         // ไม่ว่าง/รออนุมัติ/ปิด
         return $q->whereIn('status_id', [Status::UNAVAILABLE, Status::PENDING, Status::CLOSED]);
     }
+
+
+        public function adminuser()
+    {
+        return $this->belongsTo(User::class, 'User_id');
+    }
+
+        public function adminbooking()
+    {
+        return $this->belongsTo(Booking::class, 'booking_id', 'booking_id');
+    }
 }

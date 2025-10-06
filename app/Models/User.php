@@ -8,7 +8,9 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use App\Models\Booking;
-use App\Models\StallStatus;
+use Illuminate\Database\Eloquent\SoftDeletes;
+
+
 
 
 
@@ -16,6 +18,7 @@ class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable;
+    use SoftDeletes;
 
     /**
      * The attributes that are mass assignable.
@@ -29,6 +32,7 @@ class User extends Authenticatable
         'email',
         'phone',
         'password',
+        'is_active' => 'boolean',
     ];
 
     /**
@@ -68,4 +72,26 @@ class User extends Authenticatable
     {
         return (int) $this->role_id === 1; // ปรับให้ตรงค่าจริงในตาราง role
     }
+
+
+    public function role()
+    {
+        return $this->belongsTo(Role::class, 'Role_id');
+    }
+
+    public function adminbookings()
+    {
+        return $this->hasMany(Booking::class, 'User_id');
+    }
+
+    public function shopDetail()
+{
+    return $this->hasOne(ShopDetail::class, 'User_id', 'id');
+}
+
+    public function stallStatuses()
+    {
+        return $this->hasMany(Stall_status::class, 'User_id');
+    }
+
 }
