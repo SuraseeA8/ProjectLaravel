@@ -31,9 +31,16 @@
                     </div>
                 @elseif(auth()->check() && auth()->user()->role_id == 1)
                     {{-- Admin Navbar --}}
-                    <li><a href="#">จัดการล็อก</a></li>
-                    <li><a href="#">อนุมัติการจอง</a></li>
-                    <li><a href="#">รายงานสรุป</a></li>
+                    <div class="logo">Market Booking</div>
+                    <ul class="menu">
+                        <li><a href="#">จัดการล็อก</a></li>
+                        <li><a href="#">อนุมัติการจอง</a></li>
+                        <li><a href="#">รายงานสรุป</a></li>
+                        <form method="POST" action="{{ route('logout') }}">
+                            @csrf
+                            <button type="submit" class="btn">ออกจากระบบ</button>
+                        </form>
+                    </ul>
                 @endif
             @endauth
         </nav>
