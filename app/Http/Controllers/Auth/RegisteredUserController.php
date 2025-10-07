@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Models\ShopDetail;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -34,6 +35,8 @@ class RegisteredUserController extends Controller
             'users_lname' => ['required', 'string', 'max:100'],
             'email'      => ['required', 'string', 'email', 'max:100', 'unique:users'],
             'phone'      => ['required', 'string', 'max:10'],
+            'shop_name'   => ['required', 'string', 'max:45'],     // shop_detail.shop_name (varchar 45) :contentReference[oaicite:2]{index=2}
+            'description' => ['nullable', 'string', 'max:255'], // shop_detail.Description (varchar 255) :contentReference[oaicite:2]{index=3}
             'password'   => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
 
@@ -46,6 +49,12 @@ class RegisteredUserController extends Controller
             'password'    => Hash::make($request->password),
         ]);
 
+        ShopDetail::create([
+            'user_id'     => $user->id,           // FK -> users.id :contentReference[oaicite:4]{index=4}
+            'shop_name'   => $request->shop_name,
+            'description' => $request->description ?? '',
+        ]);
+
         event(new Registered($user));
 
         Auth::login($user);
@@ -55,5 +64,7 @@ class RegisteredUserController extends Controller
         } else {
             return redirect()->route('vendor.home');
         }
+
+
     }
 }

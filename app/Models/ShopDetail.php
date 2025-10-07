@@ -17,12 +17,12 @@ class ShopDetail extends Model
 
     protected $fillable = [
         'shop_name',
-        'Description',
-        'User_id'
+        'description',
+        'user_id'
     ];
 
     public function user()
     {
-        return $this->belongsTo(User::class, 'User_id');
+        return $this->belongsTo(User::class, 'user_id', 'id');
     }
 }
