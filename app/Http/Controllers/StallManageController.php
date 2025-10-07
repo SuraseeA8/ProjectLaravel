@@ -60,8 +60,9 @@ class StallManageController extends Controller
             ->where('status_id', 3)
             ->get();
 
+        $shops = ShopDetail::all();
 
-        return view('bookingsmanage', compact('bookings'));
+        return view('bookingsmanage', compact('bookings', 'shops'));
     }
 
 
@@ -81,7 +82,7 @@ class StallManageController extends Controller
     {
         $booking = Booking::find($id);
         if ($booking) {
-            $booking->status_id = 3; 
+            $booking->status_id = 5; 
             $booking->save();
         }
 
