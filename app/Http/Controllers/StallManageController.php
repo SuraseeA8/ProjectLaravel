@@ -82,7 +82,7 @@ class StallManageController extends Controller
     {
         $booking = Booking::find($id);
         if ($booking) {
-            $booking->status_id = 5; 
+            $booking->status_id = 1; 
             $booking->save();
         }
 

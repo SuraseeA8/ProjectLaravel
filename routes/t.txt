@@ -49,20 +49,18 @@
                     @foreach ($rows as $row)
                         @php
                             $stall = $row['stall'];
-                            $sid   = (int) $row['status_id'];  // กันเคส '5' เป็นสตริง
+                            $sid = $row['status_id'];
+
                             $btnClass = match ($sid) {
                                 \App\Models\Status::AVAILABLE => 'btn-available',
                                 \App\Models\Status::UNAVAILABLE => 'btn-unavailable',
                                 \App\Models\Status::PENDING => 'btn-pending',
                                 \App\Models\Status::CLOSED => 'btn-closed',
-                                \App\Models\Status::CANCEL      => 'btn-cancel',   // << เพิ่ม
-                                default => 'btn-unknown',  // << กันพลาดอนาคต
-                                
                             };
                             $disabled = in_array($sid, [
                                 \App\Models\Status::UNAVAILABLE,
                                 \App\Models\Status::PENDING,
-                                \App\Models\Status::CLOSED,
+                                \App\Models\Status::CLOSED
                             ]);
                         @endphp
 

@@ -8,6 +8,8 @@ class Event extends Model
 {
     protected $table = 'event';
     protected $primaryKey = 'event_id';
+    public $incrementing = true;
+    protected $keyType = 'int';
     public $timestamps = false;
 
     protected $fillable = [
@@ -15,6 +17,6 @@ class Event extends Model
         'detail',
         'start_date',
         'end_date',
-        'img_path'
+        'img_path',
     ];
 }

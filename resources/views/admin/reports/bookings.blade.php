@@ -8,10 +8,19 @@
             <h2 class="mb-4 text-center">รายงานการจองประจำเดือน</h2>
 
             {{-- ฟอร์มเลือกเดือน --}}
-            <form method="GET" action="{{ route('admin.reports.bookings') }}" class="text-center mb-3">
-                <label for="month">เลือกเดือน:</label>
-                <input type="month" id="month" name="month" value="{{ request('month') }}">
-                <button type="submit" class="btn btn-warning btn-sm">ค้นหา</button>
+            <form method="GET" action="{{ route('admin.reports.bookings') }}" class="month-form">
+                <label>เดือน :</label>
+
+                <select name="month">
+                    @foreach (range(1, 12) as $mm)
+                        <option value="{{ $mm }}" {{ $mm == request('month') ? 'selected' : '' }}>
+                            {{ \Carbon\Carbon::create(null, $mm)->locale('th')->translatedFormat('F') }}
+                        </option>
+                    @endforeach
+                </select>
+
+                <input type="number" name="year" value="{{ request('year', now()->year) }}" min="2000" max="2100">
+                <button type="submit">ค้นหา</button>
             </form>
         </div>
 
@@ -55,7 +64,6 @@
     </div>
 @endsection
 
-
 <style>
     .h-center {
         display: flex;
@@ -69,28 +77,42 @@
         text-align: center;
     }
 
-    /* กล่องรวมทั้งหมด */
-    .report-container {
-        margin-top: 30px;
+    /* ฟอร์มเลือกเดือน (เหมือนหน้าเลือกล็อก) */
+    .month-form {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 12px;
+        padding: 12px 20px;
+        background: #fff9f0;
     }
 
-    /* หัวข้อ */
-    .report-title {
-        font-size: 1.8rem;
-        font-weight: bold;
-        text-align: center;
-        color: #E68F36;
-        margin-bottom: 25px;
+    .month-form label {
+        font-weight: 600;
+        color: #333;
     }
 
-    /* ฟอร์มเลือกเดือน */
-    .report-form {
-        text-align: center;
+    .month-form select,
+    .month-form input[type="number"] {
+        padding: 6px 10px;
+        border: 1px solid #ccc;
+        border-radius: 6px;
+        font-size: 14px;
     }
 
-    .report-form label {
-        font-weight: 500;
-        margin-right: 10px;
+    .month-form button {
+        padding: 6px 14px;
+        background: #E68F36;
+        color: #fff;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 14px;
+        transition: background 0.3s;
+    }
+
+    .month-form button:hover {
+        background: #d87c2e;
     }
 
     /* การ์ดตาราง */
@@ -102,7 +124,6 @@
         margin-bottom: 25px;
     }
 
-    /* ตาราง */
     .report-table {
         width: 100%;
         border-collapse: collapse;
@@ -136,7 +157,6 @@
         transition: background 0.3s ease-in-out;
     }
 
-    /* กล่องสรุป */
     .report-summary {
         padding: 20px;
         border: 2px solid #E68F36;
@@ -160,7 +180,6 @@
         font-size: 15px;
     }
 
-    /* ป้ายตัวเลข */
     .report-summary span {
         display: inline-block;
         background: #FFF3E0;

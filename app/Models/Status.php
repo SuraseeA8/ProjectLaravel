@@ -25,6 +25,7 @@ class Status extends Model
     public const UNAVAILABLE = 2;
     public const PENDING     = 3;
     public const CLOSED      = 4;
+    public const CANCEL      = 5;
 
     public function stallStatuses(): HasMany
     {

@@ -19,9 +19,8 @@
                 <ul>
                     {{-- Guest --}}
                     @guest
-                        <li class="home"><a href="{{ route('index') }}">หน้าแรก</a></li>
+                        <li><a href="{{ route('index') }}">หน้าแรก</a></li>
                         <li><a href="{{ route('board') }}">ประกาศ</a></li>
-                        <li><a href="#">ติดต่อเรา</a></li>
                         <li><a href="{{ route('login') }}">เข้าสู่ระบบ</a></li>
                         <li><a class="btn" href="{{ route('register') }}">ลงทะเบียน</a></li>
                     @endguest
@@ -29,14 +28,13 @@
                     {{-- Auth --}}
                     @auth
                         @if(Auth::user()->role_id == 2)
-                            <li class="home"><a href="{{ route('vendor.home') }}">หน้าแรก</a></li>
+                            <li><a href="{{ route('vendor.home') }}">หน้าแรก</a></li>
                             <li><a href="{{ route('vendor.events') }}">ประกาศ</a></li>
                             <li><a href="{{ route('vendor.stalls') }}">จองล็อก</a></li>
                             <li><a href="{{ route('vendor.booking.status') }}">รายการจอง</a></li>
-                            <li><a href="#">ติดต่อเรา</a></li>
                             <li class="drop">บัญชีผู้ใช้
                                 <ul class="down">
-                                    <li><a href="#">แก้ไขบัญชีผู้ใช้</a></li>
+                                    <li><a href="{{ route('vendor.edit') }}">แก้ไขบัญชีผู้ใช้</a></li>
                                     <li>
                                         <form method="POST" action="{{ route('logout') }}">
                                             @csrf
@@ -50,7 +48,7 @@
                         @endif
 
                         @if(Auth::user()->role_id == 1)
-                            <li class="home"><a href="{{ route('admin.home') }}">หน้าแรก</a></li>
+                            <li><a href="{{ route('admin.home') }}">หน้าแรก</a></li>
                             <li><a href="{{ route('admin.events.index') }}">จัดการอีเวนต์</a></li>
                             <li><a href="{{ route('admin.stalls.index') }}">จัดการล็อก</a></li>
                             <li><a href="{{ route('admin.users.index') }}">จัดการผู้ใช้</a></li>

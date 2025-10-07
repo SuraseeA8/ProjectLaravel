@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\StallManageController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\AdminProfileController;
+use App\Http\Controllers\VendorProfileController;
 /*
 |--------------------------------------------------------------------------
 | Public Routes (ไม่ต้องล็อกอิน)
@@ -49,8 +50,10 @@ Route::prefix('vendor')->middleware(['auth'])->group(function () {
     // Home / Profile
     Route::get('home', [VendorController::class, 'showHome'])->name('vendor.home');
     
-    Route::get('profile', [VendorController::class, 'showProfile'])->name('vendor.profile');
-    Route::post('profile',[VendorController::class, 'updateProfile']);
+    Route::get('profile', [VendorController::class, 'showProfile'])->name('vendor.edit');
+    Route::post('profile',[VendorController::class, 'updateProfile'])->name('vendor.profile.update');
+    Route::post('/vendor/profile/password', [VendorController::class, 'changePassword'])->name('vendor.profile.password');
+    Route::post('/vendor/profile/shop', [VendorController::class, 'updateShop'])->name('vendor.shop.update');
 
     // ล็อกตลาด (ดูได้เมื่อล็อกอินเท่านั้น)
     Route::get('stalls',[VendorController::class, 'stallList'])->name('vendor.stalls');
@@ -118,6 +121,8 @@ Route::put('/admin/password/update', [AdminProfileController::class, 'passwordup
     // ตรวจสอบสลิป
     
 });
+
+
 
 /*
 |--------------------------------------------------------------------------

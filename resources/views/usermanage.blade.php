@@ -11,7 +11,8 @@
     </style>
 </head>
 <body class="p-4">
-    @extends('layouts.app')
+    
+@extends('layouts.app')
 
 @section('title', 'การจัดการผู้ใช้')
 
