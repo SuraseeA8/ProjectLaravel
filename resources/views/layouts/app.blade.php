@@ -58,7 +58,7 @@
                             <li><a href="{{ route('admin.reports.bookings') }}">รายงานการจอง</a></li>
                             <li class="drop">บัญชีผู้ใช้
                                 <ul class="down">
-                                    <li><a href="#">แก้ไขบัญชีผู้ใช้</a></li>
+                                    <li><a href="{{ route('admin.profile') }}">แก้ไขบัญชีผู้ใช้</a></li>
                                     <li>
                                         <form method="POST" action="{{ route('logout') }}">
                                             @csrf

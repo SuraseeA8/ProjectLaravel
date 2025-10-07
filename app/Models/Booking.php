@@ -98,6 +98,11 @@ class Booking extends Model
                     ->whereColumn('year', 'year')
                     ->whereColumn('User_id', 'User_id');
     }
+    
+    public function shopDetail()
+    {
+        return $this->hasOne(\App\Models\ShopDetail::class, 'user_id', 'user_id');
+    }
 
 
 }
