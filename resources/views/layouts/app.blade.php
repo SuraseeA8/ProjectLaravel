@@ -23,7 +23,7 @@
                         <li><a href="{{ route('board') }}">ประกาศ</a></li>
                         <li><a href="#">ติดต่อเรา</a></li>
                         <li><a href="{{ route('login') }}">เข้าสู่ระบบ</a></li>
-                        <li><a class="btn" href="{{ route('register') }}">สมัครสมาชิก</a></li>
+                        <li><a class="btn" href="{{ route('register') }}">ลงทะเบียน</a></li>
                     @endguest
 
                     {{-- Auth --}}
