@@ -50,9 +50,9 @@
                         @endif
 
                         @if(Auth::user()->role_id == 1)
-                            <li class="home"><a href="{{ route('index') }}">หน้าแรก</a></li>
+                            <li class="home"><a href="{{ route('admin.home') }}">หน้าแรก</a></li>
                             <li><a href="{{ route('admin.events.index') }}">จัดการอีเวนต์</a></li>
-                            <li><a href="#">จัดการล็อก</a></li>
+                            <li><a href="{{ route('admin.stalls.index') }}">จัดการล็อก</a></li>
                             <li><a href="{{ route('admin.users.index') }}">จัดการผู้ใช้</a></li>
                             <li><a href="{{ route('admin.booking.manage') }}">คำขออนุมัติ</a></li>
                             <li><a href="{{ route('admin.reports.bookings') }}">รายงานการจอง</a></li>

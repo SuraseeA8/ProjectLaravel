@@ -12,7 +12,7 @@
     
 </head>
 <body class="p-4">
-    @extends('layouts.main')
+    @extends('layouts.app')
 
     @section('title', 'คำขออนุมัติการจอง')
 

@@ -20,4 +20,9 @@ class AdminController extends Controller
     {
         return view('admin.payments.index');
     }
+
+    public function showHome()
+    {
+        return view('admin.home');
+    }
 }
