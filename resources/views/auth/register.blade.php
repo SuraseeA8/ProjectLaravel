@@ -1,206 +1,172 @@
-<x-guest-layout>
-    <form method="POST" action="{{ route('register') }}">
-        @csrf
+<!DOCTYPE html>
+<html lang="th">
 
-        {{-- ชื่อจริง --}}
-        <div>
-            <x-input-label for="users_fname" :value="__('First Name')" />
-            <x-text-input id="users_fname" class="block mt-1 w-full" type="text" name="users_fname" :value="old('users_fname')" required autofocus />
-            <x-input-error :messages="$errors->get('users_fname')" class="mt-2" />
-        </div>
-
-        {{-- นามสกุล --}}
-        <div class="mt-4">
-            <x-input-label for="users_lname" :value="__('Last Name')" />
-            <x-text-input id="users_lname" class="block mt-1 w-full" type="text" name="users_lname" :value="old('users_lname')" required />
-            <x-input-error :messages="$errors->get('users_lname')" class="mt-2" />
-        </div>
-
-        {{-- อีเมล --}}
-        <div class="mt-4">
-            <x-input-label for="email" :value="__('Email')" />
-            <x-text-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')" required />
-            <x-input-error :messages="$errors->get('email')" class="mt-2" />
-        </div>
-
-        {{-- โทรศัพท์ --}}
-        <div class="mt-4">
-            <x-input-label for="phone" :value="__('Phone')" />
-            <x-text-input id="phone" class="block mt-1 w-full" type="text" name="phone" :value="old('phone')" required />
-            <x-input-error :messages="$errors->get('phone')" class="mt-2" />
-        </div>
-
-        {{-- ชื่อร้าน --}}
-        <div class="mt-6">
-            <x-input-label for="shop_name" :value="__('Shop Name')" />
-            <x-text-input id="shop_name" class="block mt-1 w-full" type="text" name="shop_name" :value="old('shop_name')" required />
-            <x-input-error :messages="$errors->get('shop_name')" class="mt-2" />
-        </div>
-
-        {{-- รายละเอียดร้าน --}}
-        <div class="mt-4">
-            <x-input-label for="description" :value="__('Shop Description')" />
-            <textarea id="description" name="description" class="block mt-1 w-full" rows="3" maxlength="255">{{ old('description') }}</textarea>
-            <x-input-error :messages="$errors->get('description')" class="mt-2" />
-        </div>
-
-        {{-- รหัสผ่าน --}}
-        <div class="mt-6">
-            <x-input-label for="password" :value="__('Password')" />
-            <x-text-input id="password" class="block mt-1 w-full" type="password" name="password" required autocomplete="new-password" />
-            <x-input-error :messages="$errors->get('password')" class="mt-2" />
-        </div>
-
-        {{-- ยืนยันรหัสผ่าน --}}
-        <div class="mt-4">
-            <x-input-label for="password_confirmation" :value="__('Confirm Password')" />
-            <x-text-input id="password_confirmation" class="block mt-1 w-full" type="password" name="password_confirmation" required />
-            <x-input-error :messages="$errors->get('password_confirmation')" class="mt-2" />
-        </div>
-
-        {{-- ปุ่ม --}}
-        <div class="flex items-center justify-end mt-6">
-            <a class="underline text-sm text-gray-600 hover:text-gray-900" href="{{ route('login') }}">
-                {{ __('Already registered?') }}
-            </a>
-
-            <x-primary-button class="ms-4">
-                {{ __('Register') }}
-            </x-primary-button>
-        </div>
-    </form>
-
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>สมัครสมาชิก</title>
+    <link href="https://fonts.googleapis.com/css2?family=Kanit&display=swap" rel="stylesheet">
     <style>
-        /* โหลดฟอนต์ Kanit แล้วบังคับใช้ทั้งหน้า */
-        @import url('https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700;800&display=swap');
-        html, body { font-family: 'Kanit', system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans Thai", sans-serif; }
-        *, *::before, *::after { font-family: inherit; }
-
-        /* ===== Theme Vars (จับที่ฟอร์มเพื่อไม่ไปรบกวนหน้าอื่น) ===== */
-        form{
-            --brand:#E68F36;
-            --brand-2:#d97f2e;
-            --text:#222;
-            --muted:#6b7280;
-            --line:#ffd8ae;
-            --card:#ffffff;
-            --bg1:#f1a353;
-            --bg2:#f8d29e;
+        body {
+            background: linear-gradient(135deg, #E68F36, #f5b76d);
+            font-family: 'Kanit', sans-serif;
+            margin: 0;
+            padding: 0;
         }
 
-        /* ฉากหลังเต็มหน้าจอ + จัดฟอร์มกึ่งกลาง โดยไม่แก้ Blade */
-        html,body{height:100%}
-        body{
-            margin:0;
-            min-height:100svh;
-            background:linear-gradient(135deg, var(--bg1), var(--bg2));
-            display:flex; align-items:center; justify-content:center;
-            color:var(--text);
-            -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale;
+        .register-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
         }
 
-        /* กล่องฟอร์ม (จับ <form> ตรง ๆ) */
-        form{
-            width:520px; max-width:94vw;
-            background:var(--card);
-            border:1.6px solid var(--line);
-            border-radius:18px;
-            padding:26px 26px 24px;
-            box-shadow:0 22px 40px rgba(0,0,0,.12);
-            box-sizing:border-box;
-            position:relative;
+        .register-box {
+            background: #fff;
+            padding: 35px;
+            border-radius: 16px;
+            width: 100%;
+            max-width: 520px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+            animation: fadeIn 0.8s ease-in-out;
         }
 
-        /* หัวฟอร์มสร้างด้วย CSS */
-        form::before{
-            content:"สมัครสมาชิก";
-            display:block; text-align:center;
-            font-weight:800; font-size:24px; color:#1b1b1b;
-            margin-bottom:12px;
+        .register-box h2 {
+            text-align: center;
+            margin-bottom: 10px;
+            color: #E68F36;
+            font-size: 26px;
+            font-weight: bold;
         }
 
-        /* ระยะแนวตั้งยูทิลิตี้ (รองรับคลาสที่ Jetstream ใส่มา) */
-        .mt-1{ margin-top:.25rem }
-        .mt-2{ margin-top:.5rem }
-        .mt-4{ margin-top:1rem }
-        .mt-6{ margin-top:1.5rem }
-        .ms-4{ margin-left:0 } /* เดี๋ยวเราทำปุ่มเต็มบรรทัดแทน */
-
-        /* label */
-        form label{
-            display:block; font-weight:700; font-size:14px; color:#333;
-            margin-bottom:6px;
+        .register-box p {
+            text-align: center;
+            margin-bottom: 25px;
+            color: #666;
+            font-size: 14px;
         }
 
-        /* inputs / textarea (ครอบคลุม x-text-input) */
-        form input[type="text"],
-        form input[type="email"],
-        form input[type="password"],
-        form input[type="tel"],
-        form input[type="number"],
-        form textarea, form select{
-            width:100%;
-            box-sizing:border-box;
-            padding:11px 12px;
-            border-radius:10px;
-            border:2px solid #f3d7b8;
-            background:#fff; color:var(--text);
-            outline:0;
-            font-size:14px;
-            transition:border-color .18s, box-shadow .18s, background .18s;
-        }
-        form input:focus,
-        form textarea:focus,
-        form select:focus{
-            border-color:var(--brand);
-            box-shadow:0 0 0 4px rgba(230,143,54,.18);
+        label {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 6px;
+            display: block;
         }
 
-        /* กัน autofill เหลืองของ Chrome */
-        input:-webkit-autofill{
-            -webkit-box-shadow:0 0 0 1000px #fff inset;
-            -webkit-text-fill-color:var(--text);
-            transition:background-color 5000s ease-in-out 0s;
+        input,
+        textarea {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1.5px solid #ddd;
+            border-radius: 10px;
+            font-size: 14px;
+            margin-bottom: 15px;
+            transition: 0.2s;
         }
 
-        /* แสดง error ของ <x-input-error> ให้ชัด */
-        [class*="mt-2"] > span,
-        .text-sm.text-red-600{
-            color:#b91c1c !important; font-weight:600;
+        input:focus,
+        textarea:focus {
+            border-color: #E68F36;
+            box-shadow: 0 0 6px rgba(230, 143, 54, 0.4);
+            outline: none;
         }
 
-        /* แถวลิงก์ + ปุ่มส่งฟอร์ม */
-        .flex.items-center.justify-end.mt-6{
-            display:block !important;
-            margin-top:16px !important;
+        .form-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 15px;
         }
-        .flex.items-center.justify-end.mt-6 > a{
-            display:inline-block;
-            color:var(--brand);
-            text-decoration:none;
-            font-weight:700;
-        }
-        .flex.items-center.justify-end.mt-6 > a:hover{ text-decoration:underline; }
 
-        /* ปุ่ม Register (x-primary-button เรนเดอร์เป็น <button>) */
-        .flex.items-center.justify-end.mt-6 > .ms-4,
-        .flex.items-center.justify-end.mt-6 button{
-            display:block;
-            width:100%;
+        .login-link {
+            font-size: 13px;
+            color: #555;
+            text-decoration: underline;
         }
-        .flex.items-center.justify-end.mt-6 button{
-            background:linear-gradient(180deg, var(--brand), var(--brand-2));
-            color:#fff; border:none; border-radius:12px;
-            padding:12px 18px; font-weight:800; letter-spacing:.2px;
-            box-shadow:0 12px 22px rgba(230,143,54,.30);
-            transition:transform .12s ease, box-shadow .2s, filter .2s;
-            cursor:pointer;
-            margin-top:12px;   /* ให้ปุ่มห่างจากลิงก์ "Already registered?" */
+
+        .login-link:hover {
+            color: #000;
         }
-        .flex.items-center.justify-end.mt-6 button:hover{
-            transform:translateY(-1px);
-            box-shadow:0 16px 26px rgba(230,143,54,.36);
-            filter:saturate(1.04);
+
+        .register-btn {
+            background: #E68F36;
+            color: #fff;
+            border: none;
+            border-radius: 30px;
+            padding: 10px 25px;
+            font-weight: bold;
+            font-size: 14px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .register-btn:hover {
+            background: #d77f2e;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(15px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
     </style>
-</x-guest-layout>
+</head>
+
+<body>
+    <div class="register-container">
+        <div class="register-box">
+            <h2>สมัครสมาชิก</h2>
+            <p>กรอกข้อมูลเพื่อสร้างบัญชีของคุณ</p>
+
+            <form method="POST" action="{{ route('register') }}">
+                @csrf
+
+                {{-- ชื่อจริง --}}
+                <label for="users_fname">ชื่อจริง</label>
+                <input type="text" id="users_fname" name="users_fname" value="{{ old('users_fname') }}" required>
+
+                {{-- นามสกุล --}}
+                <label for="users_lname">นามสกุล</label>
+                <input type="text" id="users_lname" name="users_lname" value="{{ old('users_lname') }}" required>
+
+                {{-- อีเมล --}}
+                <label for="email">อีเมล</label>
+                <input type="email" id="email" name="email" value="{{ old('email') }}" required>
+
+                {{-- โทรศัพท์ --}}
+                <label for="phone">เบอร์โทรศัพท์</label>
+                <input type="text" id="phone" name="phone" value="{{ old('phone') }}" required>
+
+                {{-- ชื่อร้าน --}}
+                <label for="shop_name">ชื่อร้าน</label>
+                <input type="text" id="shop_name" name="shop_name" value="{{ old('shop_name') }}" required>
+
+                {{-- รายละเอียดร้าน --}}
+                <label for="description">รายละเอียดร้าน</label>
+                <textarea id="description" name="description" rows="3" maxlength="255">{{ old('description') }}</textarea>
+
+                {{-- รหัสผ่าน --}}
+                <label for="password">รหัสผ่าน</label>
+                <input type="password" id="password" name="password" required>
+
+                {{-- ยืนยันรหัสผ่าน --}}
+                <label for="password_confirmation">ยืนยันรหัสผ่าน</label>
+                <input type="password" id="password_confirmation" name="password_confirmation" required>
+
+                <div class="form-actions">
+                    <a href="{{ route('login') }}" class="login-link">มีบัญชีอยู่แล้ว? เข้าสู่ระบบ</a>
+                    <button type="submit" class="register-btn">สมัครสมาชิก</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+
+</html>
