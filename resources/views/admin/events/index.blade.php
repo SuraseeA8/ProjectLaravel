@@ -32,11 +32,13 @@
                         <a href="{{ route('admin.events.edit', $event) }}" class="btn btn-edit">แก้ไข</a>
 
                         {{-- ลบ --}}
-                        <form action="{{ route('admin.events.destroy', $event) }}" method="POST"onsubmit="return confirm('ยืนยันลบ \"{{ $event->title }}\" ?');">
-                        @csrf
-                        @method('DELETE')
-                        <button type="submit" class="btn btn-del">ลบ</button>
-                    </form>
+                        <form action="{{ route('admin.events.destroy', $event) }}" 
+                            method="POST" 
+                            onsubmit="return confirm('ยืนยันลบ {{ $event->title }} ?');">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="btn btn-del">ลบ</button>
+                        </form>
 
                     </div>
                 </div>

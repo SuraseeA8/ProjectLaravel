@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Auth;
 
 use App\Http\Controllers\StallManageController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\AdminProfileController;
 /*
 |--------------------------------------------------------------------------
 | Public Routes (ไม่ต้องล็อกอิน)
@@ -20,7 +21,7 @@ Route::get('/', function () {
     if (Auth::check()) {
         $roleId = Auth::user()->role_id ?? null;
         return $roleId == 1
-            ? redirect()->route('admin.stalls')
+            ? redirect()->route('admin.home')
             : redirect()->route('vendor.home');
     }
     return view('index'); // ยังไม่ล็อกอิน → หน้า landing
@@ -92,6 +93,12 @@ Route::prefix('admin')->middleware(['auth','can:admin'])->group(function () {
     Route::get('/admin/bookings', [StallManageController::class, 'manage'])->name('admin.booking.manage');
     Route::get('/admin/bookings/approve/{id}', [StallManageController::class, 'approve'])->name('admin.booking.approve');
     Route::get('/admin/bookings/cancel/{id}', [StallManageController::class, 'cancel'])->name('admin.booking.cancel');
+
+
+    Route::get('/admin/profile', [AdminProfileController::class, 'index'])->name('admin.profile');
+Route::put('/admin/profile/update', [AdminProfileController::class, 'update'])->name('admin.profile.update');
+
+Route::put('/admin/password/update', [AdminProfileController::class, 'passwordupdate'])->name('admin.profile.password');
 
     // การจัดการผู้ใช้
     
