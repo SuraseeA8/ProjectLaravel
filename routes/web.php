@@ -1,8 +1,14 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\VendorController;
+use App\Http\Controllers\Vendor\ProfileController;
+use App\Http\Controllers\Vendor\VendorController;
+use App\Http\Controllers\Vendor\HomeController;
+use App\Http\Controllers\Vendor\StallController;
+use App\Http\Controllers\Vendor\BookingController;
+use App\Http\Controllers\Vendor\CheckoutController;
+
+
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\ReportController;
@@ -12,7 +18,6 @@ use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\StallManageController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\AdminProfileController;
-use App\Http\Controllers\VendorProfileController;
 /*
 |--------------------------------------------------------------------------
 | Public Routes (ไม่ต้องล็อกอิน)
@@ -47,32 +52,25 @@ Route::middleware('auth')->group(function () {
 |--------------------------------------------------------------------------
 */
 Route::prefix('vendor')->middleware(['auth'])->group(function () {
-    // Home / Profile
-    Route::get('home', [VendorController::class, 'showHome'])->name('vendor.home');
+    Route::get('home', [HomeController::class, 'showHome'])->name('vendor.home');
     
-    Route::get('profile', [VendorController::class, 'showProfile'])->name('vendor.edit');
-    Route::post('profile',[VendorController::class, 'updateProfile'])->name('vendor.profile.update');
-    Route::post('/vendor/profile/password', [VendorController::class, 'changePassword'])->name('vendor.profile.password');
-    Route::post('/vendor/profile/shop', [VendorController::class, 'updateShop'])->name('vendor.shop.update');
+    Route::get('profile', [ProfileController::class, 'showProfile'])->name('vendor.edit');
+    Route::post('profile',[ProfileController::class, 'updateProfile'])->name('vendor.profile.update');
+    Route::post('profile/password', [ProfileController::class, 'changePassword'])->name('vendor.profile.password');
+    Route::post('profile/shop', [ProfileController::class, 'updateShop'])->name('vendor.shop.update');
 
-    // ล็อกตลาด (ดูได้เมื่อล็อกอินเท่านั้น)
-    Route::get('stalls',[VendorController::class, 'stallList'])->name('vendor.stalls');
-    Route::get('stalls/{stall}', [VendorController::class, 'stallDetail'])->name('vendor.stall.detail');
-    Route::post('stalls/{stall}/book', [VendorController::class, 'bookStall'])->name('vendor.stall.book'); // จองล็อก
+    Route::get('stalls',[StallController::class, 'stallList'])->name('vendor.stalls');
+    Route::get('stalls/{stall}', [StallController::class, 'stallDetail'])->name('vendor.stall.detail');
+    Route::post('stalls/{stall}/book', [BookingController::class, 'bookStall'])->name('vendor.stall.book'); // จองล็อก
 
-    // สถานะการจอง
-    Route::get('booking/status', [VendorController::class, 'bookingStatus'])->name('vendor.booking.status');
-    Route::post('booking/{booking}/cancel', [VendorController::class, 'cancelBooking'])->name('vendor.booking.cancel');
+    Route::get('booking/status', [BookingController::class, 'bookingStatus'])->name('vendor.booking.status');
+    Route::post('booking/{booking}/cancel', [BookingController::class, 'cancelBooking'])->name('vendor.booking.cancel');
     
-    Route::get('stalls/{stall}/checkout',  [VendorController::class, 'checkoutForm'])
-        ->name('vendor.stall.checkout');
-    // ส่งฟอร์ม: สร้าง booking + payment + อัพเดต stall_status ในคราวเดียว
-    Route::post('stalls/{stall}/checkout', [VendorController::class, 'checkoutSubmit'])
-        ->name('vendor.stall.checkout.submit');
+    Route::get('stalls/{stall}/checkout',  [CheckoutController::class, 'checkoutForm'])->name('vendor.stall.checkout');
+
+    Route::post('stalls/{stall}/checkout', [CheckoutController::class, 'checkoutSubmit'])->name('vendor.stall.checkout.submit');
         
-    // ข่าวสาร/กิจกรรม
     Route::get('events', [VendorController::class, 'eventBoard'])->name('vendor.events');
-    // ❌ ไม่ต้องประกาศ logout เอง ถ้าใช้ Breeze/Fortify จะมี POST /logout จาก auth.php อยู่แล้ว
 });
 
 /*
@@ -84,23 +82,23 @@ Route::prefix('admin')->middleware(['auth','can:admin'])->group(function () {
     // การจัดการล็อก
     
     Route::get('home', [AdminController::class, 'showHome'])->name('admin.home');
-    Route::get('/admin/stalls', [StallManageController::class, 'index'])->name('admin.stalls.index');
+    Route::get('stalls', [StallManageController::class, 'index'])->name('admin.stalls.index');
 
 
-    Route::get('/admin/stalls/toggle/{stall_id}/{month}/{year}', [StallManageController::class, 'toggleStatus'])->name('admin.stalls.toggle');
+    Route::get('stalls/toggle/{stall_id}/{month}/{year}', [StallManageController::class, 'toggleStatus'])->name('admin.stalls.toggle');
 
-    Route::get('/admin/users', [UserController::class, 'index'])->name('admin.users.index'); 
+    Route::get('users', [UserController::class, 'index'])->name('admin.users.index'); 
     Route::post('/delete/{id}', [UserController::class, 'destroy'])->name('admin.users.delete');
 
-    Route::get('/admin/bookings', [StallManageController::class, 'manage'])->name('admin.booking.manage');
-    Route::get('/admin/bookings/approve/{id}', [StallManageController::class, 'approve'])->name('admin.booking.approve');
-    Route::get('/admin/bookings/cancel/{id}', [StallManageController::class, 'cancel'])->name('admin.booking.cancel');
+    Route::get('bookings', [StallManageController::class, 'manage'])->name('admin.booking.manage');
+    Route::get('bookings/approve/{id}', [StallManageController::class, 'approve'])->name('admin.booking.approve');
+    Route::get('bookings/cancel/{id}', [StallManageController::class, 'cancel'])->name('admin.booking.cancel');
 
 
-    Route::get('/admin/profile', [AdminProfileController::class, 'index'])->name('admin.profile');
-    Route::put('/admin/profile/update', [AdminProfileController::class, 'update'])->name('admin.profile.update');
+    Route::get('profile', [AdminProfileController::class, 'index'])->name('admin.profile');
+    Route::put('profile/update', [AdminProfileController::class, 'update'])->name('admin.profile.update');
 
-    Route::put('/admin/password/update', [AdminProfileController::class, 'passwordupdate'])->name('admin.profile.password');
+    Route::put('password/update', [AdminProfileController::class, 'passwordupdate'])->name('admin.profile.password');
 
     // การจัดการผู้ใช้
     
