@@ -26,18 +26,7 @@ class VendorController extends Controller
      * --------------------------- */
     public function showHome(Request $request)
     {
-        $ym = $this->resolveYearMonth($request);
-        $y = $ym['year']; $m = $ym['month'];
-
-        $user = Auth::user();
-
-        $stats = [
-            'bookings_total'   => Booking::where('user_id', $user->id)->count(),
-            'bookings_pending' => Booking::where('user_id', $user->id)->where('status_id', Status::PENDING)->count(),
-            'bookings_approved'=> Booking::where('user_id', $user->id)->where('status_id', Status::UNAVAILABLE)->count(),
-        ];
-
-        return view('vendor.home', compact('stats','y','m'));
+        return view('vendor.home');
     }
 
     /* ---------------------------
@@ -118,6 +107,31 @@ class VendorController extends Controller
         ]);
 
         return back()->with('success', 'เปลี่ยนรหัสผ่านเรียบร้อยแล้ว');
+    }
+    /* ---------------------------
+     * helpers
+     * --------------------------- */
+    private function resolveYearMonth(Request $request): array
+    {
+        $now = Carbon::now('Asia/Bangkok');
+        return [
+            'year'  => (int)($request->input('year')  ?? $now->year),
+            'month' => (int)($request->input('month') ?? $now->month),
+        ];
+    }
+
+    private function authorizeActiveStall(Stall $stall): void
+    {
+        if (! $stall->is_active) {
+            abort(403, 'ล็อกนี้ปิดใช้งาน');
+        }
+    }
+
+    private function authorizeBookingOwner(Booking $booking): void
+    {
+        if ($booking->user_id !== Auth::id()) {
+            abort(403);
+        }
     }
 
     /* ---------------------------
@@ -356,31 +370,7 @@ class VendorController extends Controller
         return view('vendor.events.index', compact('events'));
     }
 
-    /* ---------------------------
-     * helpers
-     * --------------------------- */
-    private function resolveYearMonth(Request $request): array
-    {
-        $now = Carbon::now('Asia/Bangkok');
-        return [
-            'year'  => (int)($request->input('year')  ?? $now->year),
-            'month' => (int)($request->input('month') ?? $now->month),
-        ];
-    }
-
-    private function authorizeActiveStall(Stall $stall): void
-    {
-        if (! $stall->is_active) {
-            abort(403, 'ล็อกนี้ปิดใช้งาน');
-        }
-    }
-
-    private function authorizeBookingOwner(Booking $booking): void
-    {
-        if ($booking->user_id !== Auth::id()) {
-            abort(403);
-        }
-    }
+    
 
     public function checkoutForm(Request $request, Stall $stall)
     {
