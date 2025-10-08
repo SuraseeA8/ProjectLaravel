@@ -99,9 +99,9 @@ Route::prefix('admin')->middleware(['auth','can:admin'])->group(function () {
 
 
     Route::get('/admin/profile', [AdminProfileController::class, 'index'])->name('admin.profile');
-Route::put('/admin/profile/update', [AdminProfileController::class, 'update'])->name('admin.profile.update');
+    Route::put('/admin/profile/update', [AdminProfileController::class, 'update'])->name('admin.profile.update');
 
-Route::put('/admin/password/update', [AdminProfileController::class, 'passwordupdate'])->name('admin.profile.password');
+    Route::put('/admin/password/update', [AdminProfileController::class, 'passwordupdate'])->name('admin.profile.password');
 
     // การจัดการผู้ใช้
     

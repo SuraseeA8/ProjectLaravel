@@ -22,7 +22,7 @@
             @endforeach
             </select>
 
-            <input type="number" name="year" value="{{ $y }}" min="2000" max="2100">
+            <input type="number" name="year" value="{{ $y }}" min="2025" max="2100">
             <button type="submit">ดูข้อมูล</button>
         </form>
 

@@ -1,29 +1,15 @@
-<!DOCTYPE html>
-<html lang="th">
-<head>
-    <meta charset="UTF-8">
-    <title>คำขออนุมัติการจอง</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat">
-    <style>
-        body { font-family: "Montserrat", sans-serif; }
-    </style>
-    
-</head>
-<body class="p-4">
-    @extends('layouts.app')
+@extends('layouts.app')
 
     @section('title', 'คำขออนุมัติการจอง')
 
     @section('content')
-        <h2>คำขออนุมัติการจอง</h2>
+        <h2 class="text-center">คำขออนุมัติการจอง</h2>
 
         @if(session('success'))
             <div class="alert alert-success mt-3">{{ session('success') }}</div>
         @endif
 
-        <table class="table table-bordered mt-4 align-middle">
+        <table class="table table-striped mt-4 align-middle">
             <thead class="table-warning text-center">
                 <tr>
                     <th>ล็อก</th>
@@ -77,11 +63,11 @@
                             <td class="text-center">
                                 <a href="{{ route('admin.booking.approve', ['id' => $bk->booking_id]) }}"
                                 class="btn btn-success btn-sm"
-                                onclick="return confirm('ยืนยันการอนุมัติการจองนี้หรือไม่?');">Approve</a>
+                                onclick="return confirm('ยืนยันการอนุมัติการจองนี้หรือไม่?');">อนุมัติ</a>
 
                                 <a href="{{ route('admin.booking.cancel', ['id' => $bk->booking_id]) }}"
                                 class="btn btn-danger btn-sm"
-                                onclick="return confirm('ยืนยันการไม่อนุมัติการจองนี้หรือไม่?');">Cancle</a>
+                                onclick="return confirm('ยืนยันการยกเลิกการจองนี้หรือไม่?');">ยกเลิก</a>
                             </td>
                         </tr>
                     @endif
@@ -89,5 +75,120 @@
             </tbody>
         </table>
     @endsection
-</body>
-</html>
+<style>
+    /* ===== Theme ===== */
+    :root{
+    --brand:#E68F36;
+    --brand-2:#d87c2e;
+    --bg-soft:#fffde7;
+    --card:#ffffff;
+    --line:#f0d9c3;
+    --text:#333;
+    }
+
+    body{
+    background:var(--bg-soft);
+    font-family:'Kanit', sans-serif;
+    }
+
+    /* ===== จัดหน้าให้อยู่กึ่งกลางทั้งหมด โดยไม่แก้ HTML ===== */
+    main{
+    display:flex;
+    justify-content:center;   /* จัดกลางแนวนอน */
+    padding:24px 16px;
+    }
+    main > *{
+    width:100%;
+    max-width:1200px;         /* กรอบเนื้อหา */
+    margin-left:auto;
+    margin-right:auto;
+    }
+
+    /* ===== หัวข้อ ===== */
+    h2.text-center{
+    text-align: center;
+    color:var(--brand);
+    font-weight:700;
+    margin-bottom:10px;
+    }
+
+    /* ===== Alert ให้อยู่กึ่งกลาง และกว้างเท่ากับคอนเทนต์ ===== */
+    .alert{
+    max-width:1200px;
+    margin:12px auto 0;
+    border-radius:10px;
+    }
+    .alert-success{
+    border:1.5px solid #A5D6A7;
+    }
+
+    /* ===== ตาราง (อยู่กลาง + ธีมเดียวกัน) ===== */
+    .table{
+    background:#fff;
+    overflow:hidden;                 /* โค้งหัวตารางเนียน */
+    box-shadow:0 6px 16px rgba(0,0,0,.08);
+    margin:16px auto 0;              /* กึ่งกลาง */
+    width:100%;
+    max-width:1200px;                /* ความกว้างสูงสุด */
+    }
+
+    .table thead.table-warning{
+    background:linear-gradient(90deg, var(--brand), var(--brand-2)) !important;
+    color:#fff;
+    }
+    .table thead th{
+    text-align:center;
+    font-weight:600;
+    padding:14px 12px;
+    border-bottom:none !important;
+    white-space:nowrap;
+    }
+
+    .table tbody td{
+    text-align:center;
+    color:var(--text);
+    vertical-align:middle;
+    border-color:var(--line) !important;
+    padding:12px 10px;
+    background:#fff;
+    }
+
+    /* สลับสีแถว (นิ่ง ไม่ต้อง hover) */
+    .table.table-striped > tbody > tr:nth-of-type(even) > *{
+    background:#FFF9F3 !important;
+    }
+    .table tbody tr:hover > *{
+    background:inherit !important;   /* ไม่ให้ไล่สีเวลา hover */
+    }
+
+    /* รูปสลิปให้อยู่กลางและมีกรอบนุ่ม ๆ */
+    .table td img{
+    display:inline-block;
+    max-width:90px;
+    height:auto;
+    border:1px solid var(--line);
+    border-radius:8px;
+    }
+
+    .btn, .btn a {
+        text-decoration: none !important;  /* ตัดเส้นใต้ */
+    }
+
+
+    /* ปุ่ม */
+    .btn{
+    color: white;
+    border:none;
+    border-radius:10px;
+    padding:6px 12px;
+    }
+    .btn-success{ background:#4CAF50; }
+    .btn-success:hover{ background:#388E3C; }
+    .btn-danger{ background:#f44336; }
+    .btn-danger:hover{ background:#d32f2f; }
+
+
+</style>
+
+
+

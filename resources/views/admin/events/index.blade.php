@@ -7,7 +7,7 @@
         <h2>จัดการกิจกรรม</h2>
 
         <div class="btn-add-container">
-            <a href="{{ route('admin.events.create') }}" class="btn-add">➕ เพิ่มกิจกรรมใหม่</a>
+            <a href="{{ route('admin.events.create') }}" class="btn-add">เพิ่มกิจกรรมใหม่</a>
         </div>
 
 

@@ -74,7 +74,9 @@
         </div>
     </header>
     <main>
-        @yield('content')
+        <div class="box">
+            @yield('content')   
+        </div>
     </main>
 
     <footer>

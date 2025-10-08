@@ -19,7 +19,7 @@
                     @endforeach
                 </select>
 
-                <input type="number" name="year" value="{{ request('year', now()->year) }}" min="2000" max="2100">
+                <input type="number" name="year" value="{{ request('year', now()->year) }}" min="2025" max="2100">
                 <button type="submit">ค้นหา</button>
             </form>
         </div>
@@ -84,7 +84,6 @@
         align-items: center;
         gap: 12px;
         padding: 12px 20px;
-        background: #fff9f0;
     }
 
     .month-form label {

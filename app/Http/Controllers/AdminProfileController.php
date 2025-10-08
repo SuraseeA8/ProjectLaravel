@@ -6,7 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Validation\Rules\Password;
 use Illuminate\Support\Facades\Auth;
 use App\Models\User;
-use Illuminate\Validation\Rule;                          // ✅ เพิ่มอันนี้
+use Illuminate\Validation\Rule;                          
 use Illuminate\Validation\Rules\Password as PasswordRule;
 
 class AdminProfileController extends Controller
@@ -60,7 +60,7 @@ class AdminProfileController extends Controller
 
             // 3.1 เช็ค current_password กับ hash ใน DB
             if (!password_verify($request->input('current_password'), $user->password)) {
-                return back()->with('error', '❌ รหัสผ่านเดิมไม่ถูกต้อง')->withInput();
+                return back()->with('error', ' รหัสผ่านเดิมไม่ถูกต้อง')->withInput();
             }
 
             // 3.2 กันรหัสใหม่ซ้ำกับรหัสเดิม
@@ -75,7 +75,7 @@ class AdminProfileController extends Controller
         // 4) บันทึก
         $user->save();
 
-        return back()->with('success', '✅ บันทึกการเปลี่ยนแปลงเรียบร้อยแล้ว');
+        return back()->with('success', 'บันทึกการเปลี่ยนแปลงเรียบร้อยแล้ว');
     }
 
 }

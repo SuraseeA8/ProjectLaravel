@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Home')
+@section('title', 'หน้าแรก')
 @section('content')
     <div class="content">
         <img src="{{ asset('img/img02.jpg') }}" alt="welcome">
