@@ -7,20 +7,6 @@ use Illuminate\Http\Request;
 
 class AdminController extends Controller
 {
-    public function stalls()
-    {
-        // $stalls = Stall::orderBy('id')->get(); // ถ้ามีโมเดล
-        return view('admin.stalls.index'/*, compact('stalls')*/);
-    }
-
-    public function toggleStall($id) { /* ... */ }
-    public function cancelStall($id) { /* ... */ }
-
-    public function paymentCheck()
-    {
-        return view('admin.payments.index');
-    }
-
     public function showHome()
     {
         return view('admin.home');

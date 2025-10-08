@@ -82,7 +82,6 @@ Route::prefix('vendor')->middleware(['auth'])->group(function () {
 */
 Route::prefix('admin')->middleware(['auth','can:admin'])->group(function () {
     // การจัดการล็อก
-    // Route::get('stalls', [AdminController::class, 'stalls'])->name('admin.stalls');
     
     Route::get('home', [AdminController::class, 'showHome'])->name('admin.home');
     Route::get('/admin/stalls', [StallManageController::class, 'index'])->name('admin.stalls.index');
