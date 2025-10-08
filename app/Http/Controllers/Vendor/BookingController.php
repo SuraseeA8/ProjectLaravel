@@ -6,11 +6,11 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+
 use App\Models\Stall_Status;
 use App\Models\Status;
 use App\Models\Booking;
 use App\Models\Stall;
-use Carbon\Carbon;
 
 
 class BookingController extends Controller
