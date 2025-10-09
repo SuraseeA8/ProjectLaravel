@@ -15,10 +15,9 @@ class StallController extends Controller
 {
     public function stallList(Request $request)
     {
-        // รับ year/month เป็น ค.ศ. ตรง ๆ
-        $ym = $this->resolveYearMonth($request);
+        $ym = $this->Ym($request);
         $y  = (int) $ym['year'];
-        $m  = (int) $ym['month'];
+        $m  = (int) $ym['month'];  
 
         // ดึงสถานะรายเดือนทั้งหมด -> keyBy(stall_id)
         $statuses = \App\Models\Stall_Status::query()
@@ -55,7 +54,7 @@ class StallController extends Controller
      * --------------------------- */
     public function stallDetail(Request $request, Stall $stall)
     {
-        $ym = $this->resolveYearMonth($request);
+        $ym = $this->Ym($request);
         $y  = (int) $ym['year'];
         $m  = (int) $ym['month'];
 
@@ -86,7 +85,7 @@ class StallController extends Controller
         return view('vendor.stall_detail', compact('stall','monthStatus','y','m','canBook','cannotReason'));
     }
 
-    private function resolveYearMonth(Request $request): array
+    private function Ym(Request $request): array
     {
         $now = Carbon::now('Asia/Bangkok');
         return [

@@ -8,9 +8,9 @@ use App\Http\Controllers\Vendor\HomeController;
 use App\Http\Controllers\Vendor\StallController;
 use App\Http\Controllers\Vendor\BookingController;
 use App\Http\Controllers\Vendor\CheckoutController;
+use App\Http\Controllers\Vendor\EventController;
 
 use App\Http\Controllers\AdminController;
-use App\Http\Controllers\EventController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\StallManageController;
 use App\Http\Controllers\UserController;
