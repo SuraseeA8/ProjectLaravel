@@ -20,28 +20,28 @@ class StallController extends Controller
         $m  = (int) $ym['month'];  
 
         // ดึงสถานะรายเดือนทั้งหมด -> keyBy(stall_id)
-        $statuses = \App\Models\Stall_Status::query()
+        $statuses = Stall_Status::query()
             ->select(['stall_id','status_id'])
             ->where('year', $y)->where('month', $m)
             ->get()->keyBy('stall_id');
 
         // ดึงล็อกที่ใช้งาน + โซน แล้วแม็พสถานะ
-        $stalls = \App\Models\Stall::with('zone')
+        $stalls = Stall::with('zone')
             ->where('is_active', true)
             ->orderByRaw('zone_id, stall_code')
             ->get()
             ->map(function ($s) use ($statuses) {
                 $st  = $statuses->get($s->stall_id);
-                $sid = $st->status_id ?? \App\Models\Status::AVAILABLE;
+                $sid = $st->status_id ?? Status::AVAILABLE;
                 return [
                     'stall'       => $s,
                     'status_id'   => $sid,
                     'status_name' => match ($sid) {
-                        \App\Models\Status::AVAILABLE   => 'ว่าง',
-                        \App\Models\Status::UNAVAILABLE => 'ไม่ว่าง',
-                        \App\Models\Status::PENDING     => 'รออนุมัติ',
-                        \App\Models\Status::CLOSED      => 'ปิดให้จอง',
-                        \App\Models\Status::CANCEL     => 'ยกเลิก',
+                        Status::AVAILABLE   => 'ว่าง',
+                        Status::UNAVAILABLE => 'ไม่ว่าง',
+                        Status::PENDING     => 'รออนุมัติ',
+                        Status::CLOSED      => 'ปิดให้จอง',
+                        Status::CANCEL     => 'ยกเลิก',
                     },
                 ];
             });

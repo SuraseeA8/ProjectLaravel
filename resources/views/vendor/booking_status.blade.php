@@ -5,15 +5,7 @@
 @section('content')
     <main class="container">
 
-        {{-- Flash / Errors --}}
-        @if (session('ok'))
-            <div class="alert ok">{{ session('ok') }}</div>
-        @endif
-        @if ($errors->any())
-            <div class="alert err">
-                @foreach($errors->all() as $e) <div>{{ $e }}</div> @endforeach
-            </div>
-        @endif
+        
 
         <h2 class="mb-3">รายการจองของฉัน</h2>
 
@@ -32,11 +24,8 @@
             <tbody>
                 @forelse ($items as $booking)
                     @php
-                        // หา payment ล่าสุด (ถ้ามี)
                         $payment = optional($booking->payments)->last();
-                        // แปลงชื่อเดือนเป็นไทย
                         $monthName = \Carbon\Carbon::create($booking->year, $booking->month)->locale('th')->translatedFormat('F');
-                        // สถานะ (ใช้ชื่อจากตาราง status ถ้ามีคอลัมน์ 'status_name', เปลี่ยนให้ตรง schema คุณ)
                         $statusText = $booking->status->status_name ?? $booking->status->name ?? '-';
                     @endphp
 
@@ -49,13 +38,10 @@
                         <td>
                             @if ($payment && $payment->slip_path)
                                 <a href="{{ asset('storage/' . $payment->slip_path) }}" target="_blank">ดูสลิป</a>
-                            @else{{-- ถ้าใช้ flow ใหม่ (Checkout เท่านั้น) และใบจองนี้ไม่มีสลิป ให้แสดงขีด --}}
+                            @else
                                 —
                             @endif
-                            {{-- หรือถ้าอยากให้ไปหน้า checkout ของล็อกนั้นอีกครั้ง (flow ใหม่) ให้ใช้ลิงก์นี้แทน:
-                            <a
-                                href="{{ route('vendor.stall.checkout', $booking->stall_id) }}?year={{ $booking->year }}&month={{ $booking->month }}">อัปโหลด</a>
-                            --}}
+                            
 
                         </td>
                         <td>
@@ -79,7 +65,6 @@
         </table>
 
         <div class="mt-3">
-            {{-- ตัวแบ่งหน้า --}}
             {{ $items->links() }}
         </div>
 

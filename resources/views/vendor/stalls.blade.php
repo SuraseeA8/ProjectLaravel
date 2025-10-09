@@ -4,16 +4,8 @@
 
 @section('content')
     {{-- Flash --}}
-    @if (session('ok'))
-        <div class="alert ok">{{ session('ok') }}</div>
-    @endif
-    @if ($errors->any())
-        <div class="alert err">
-            @foreach($errors->all() as $e)
-                <div>{{ $e }}</div>
-            @endforeach
-        </div>
-    @endif
+    @php use App\Models\Status; @endphp
+
 
     {{-- ฟอร์มเลือกเดือน (รับ ค.ศ. ตรง ๆ) --}}
     <form method="GET" action="{{ route('vendor.stalls') }}" class="month-form">
@@ -51,18 +43,18 @@
                             $stall = $row['stall'];
                             $sid   = (int) $row['status_id'];  // กันเคส '5' เป็นสตริง
                             $btnClass = match ($sid) {
-                                \App\Models\Status::AVAILABLE => 'btn-available',
-                                \App\Models\Status::UNAVAILABLE => 'btn-unavailable',
-                                \App\Models\Status::PENDING => 'btn-pending',
-                                \App\Models\Status::CLOSED => 'btn-closed',
-                                \App\Models\Status::CANCEL      => 'btn-cancel',   // << เพิ่ม
+                                Status::AVAILABLE => 'btn-available',
+                                Status::UNAVAILABLE => 'btn-unavailable',
+                                Status::PENDING => 'btn-pending',
+                                Status::CLOSED => 'btn-closed',
+                                Status::CANCEL      => 'btn-cancel',   // << เพิ่ม
                                 default => 'btn-unknown',  // << กันพลาดอนาคต
                                 
                             };
                             $disabled = in_array($sid, [
-                                \App\Models\Status::UNAVAILABLE,
-                                \App\Models\Status::PENDING,
-                                \App\Models\Status::CLOSED,
+                                Status::UNAVAILABLE,
+                                Status::PENDING,
+                                Status::CLOSED,
                             ]);
                         @endphp
 

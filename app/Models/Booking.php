@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Models\User;
 use App\Models\Stall;
 use App\Models\Payment;
@@ -14,14 +15,18 @@ use App\Models\Status;
 
 class Booking extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
     protected $table = 'bookings';
     protected $primaryKey = 'booking_id';
     public $timestamps = true; // มี created_at / updated_at แล้ว
 
     protected $fillable = [
-        'user_id','stall_id','year','month','status_id'
+        'user_id',
+        'stall_id',
+        'year',
+        'month',
+        'status_id'
     ];
 
     protected $casts = [
@@ -53,7 +58,7 @@ class Booking extends Model
     // Scopes
     public function scopeYm(Builder $q, int $year, int $month): Builder
     {
-        return $q->where('year',$year)->where('month',$month);
+        return $q->where('year', $year)->where('month', $month);
     }
 
     public function scopePending(Builder $q): Builder
@@ -75,7 +80,7 @@ class Booking extends Model
 
     public function adminuser()
     {
-        
+
         return $this->belongsTo(User::class, 'user_id', 'User_id');
     }
 
@@ -94,15 +99,13 @@ class Booking extends Model
     public function stallStatus()
     {
         return $this->hasOne(Stall_status::class, 'stall_id', 'Stall_id')
-                    ->whereColumn('month', 'month')
-                    ->whereColumn('year', 'year')
-                    ->whereColumn('User_id', 'User_id');
+            ->whereColumn('month', 'month')
+            ->whereColumn('year', 'year')
+            ->whereColumn('User_id', 'User_id');
     }
-    
+
     public function shopDetail()
     {
         return $this->hasOne(\App\Models\ShopDetail::class, 'user_id', 'user_id');
     }
-
-
 }

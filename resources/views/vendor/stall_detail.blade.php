@@ -4,34 +4,23 @@
 
 @section('content')
     <main class="container">
+        @php use App\Models\Status; @endphp
 
-        {{-- Flash / Error --}}
-        @if (session('ok'))
-            <div class="alert ok">{{ session('ok') }}</div>
-        @endif
-        @if ($errors->any())
-            <div class="alert err">
-                @foreach($errors->all() as $e)
-                    <div>{{ $e }}</div>
-                @endforeach
-            </div>
-        @endif
-
+        
         @php
             $sid = $monthStatus->status_id ?? \App\Models\Status::AVAILABLE;
             $statusName = match ($sid) {
-                \App\Models\Status::AVAILABLE => 'ว่าง',
-                \App\Models\Status::UNAVAILABLE => 'ไม่ว่าง',
-                \App\Models\Status::PENDING => 'รออนุมัติ',
-                \App\Models\Status::CLOSED => 'ปิดให้จอง',
+                Status::AVAILABLE => 'ว่าง',
+                Status::UNAVAILABLE => 'ไม่ว่าง',
+                Status::PENDING => 'รออนุมัติ',
+                Status::CLOSED => 'ปิดให้จอง',
                 default => 'ไม่ทราบสถานะ',
             };
             $statusClass = match ($sid) {
-                \App\Models\Status::AVAILABLE => 'badge-available',
-                \App\Models\Status::UNAVAILABLE => 'badge-unavailable',
-                \App\Models\Status::PENDING => 'badge-pending',
-                \App\Models\Status::CLOSED => 'badge-closed',
-                default => 'badge-neutral',
+                Status::AVAILABLE => 'badge-available',
+                Status::UNAVAILABLE => 'badge-unavailable',
+                Status::PENDING => 'badge-pending',
+                Status::CLOSED => 'badge-closed',
             };
         @endphp
 
@@ -61,7 +50,6 @@
             </div>
         </section>
 
-        {{-- ปุ่มย้อนกลับ + ปุ่มจอง --}}
         <section class="action-row">
             <a href="{{ route('vendor.stalls', ['year' => $y, 'month' => $m]) }}" class="btn back-btn">
                 ← กลับไปหน้าล็อก

@@ -8,9 +8,10 @@ use App\Http\Controllers\Vendor\HomeController;
 use App\Http\Controllers\Vendor\StallController;
 use App\Http\Controllers\Vendor\BookingController;
 use App\Http\Controllers\Vendor\CheckoutController;
-use App\Http\Controllers\Vendor\EventController;
+use App\Http\Controllers\Vendor\EventvController;
 
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\EventController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\StallManageController;
 use App\Http\Controllers\UserController;
@@ -27,7 +28,7 @@ Route::get('/', function () {
 })->name('index');
 
 
-Route::get('/board', [EventController::class, 'board'])->name('board');
+Route::get('/board', [EventvController::class, 'board'])->name('board');
 
 
 Route::middleware('auth')->group(function () {
@@ -56,7 +57,7 @@ Route::prefix('vendor')->middleware(['auth'])->group(function () {
 
     Route::post('stalls/{stall}/checkout', [CheckoutController::class, 'checkoutSubmit'])->name('vendor.stall.checkout.submit');
         
-    Route::get('events', [EventController::class, 'eventBoard'])->name('vendor.events');
+    Route::get('events', [EventvController::class, 'eventBoard'])->name('vendor.events');
 });
 
 

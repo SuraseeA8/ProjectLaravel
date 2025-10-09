@@ -7,11 +7,11 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
+
 use App\Models\Stall_Status;
 use App\Models\Status;
 use App\Models\Booking;
 use App\Models\Stall;
-
 
 class BookingController extends Controller
 {
@@ -25,55 +25,64 @@ class BookingController extends Controller
             'amount' => 'nullable|numeric|min:0',
             'slip'   => 'required|file|mimes:jpg,jpeg,png,pdf|max:4096',
         ]);
-        $y = (int) $data['year'];
-        $m = (int) $data['month'];
+
+        $y   = (int) $data['year'];
+        $m   = (int) $data['month'];
         $uid = Auth::id();
 
-        // กันล็อกใหม่เดือนนี้: ต้องไม่ถูกจอง/รอ/ปิด
+        // ล็อกนั้นในเดือน/ปีนี้ต้องไม่อยู่ในสถานะ ไม่ว่าง/รอ/ปิด
         $busy = Stall_Status::where('stall_id', $stall->stall_id)
             ->where('year', $y)->where('month', $m)
             ->whereIn('status_id', [Status::UNAVAILABLE, Status::PENDING, Status::CLOSED])
             ->exists();
+
         if ($busy) {
             return back()->withErrors(['month' => 'เดือนนี้ล็อกนี้ไม่ว่างแล้ว'])->withInput();
         }
 
-        // เก็บไฟล์สลิปไว้ก่อน (คุณจะผูกกับ payment ทีหลังก็ได้)
+        // เก็บไฟล์สลิป (ถ้าจะใช้บันทึกเป็น payment ภายหลัง)
         $path = $request->file('slip')->store('slips', 'public');
 
         DB::transaction(function () use ($uid, $stall, $y, $m) {
-            // หา booking เดิมของ user เดือนนี้ (ถ้ามี)
+            // จับ booking เดิมของ user เดือนนี้ (ล็อกแถวเพื่อกันแข่ง)
             $existing = Booking::where('user_id', $uid)
                 ->where('year', $y)->where('month', $m)
                 ->lockForUpdate()
                 ->first();
 
-            // ถ้ามี booking เดิม -> ปลดสถานะล็อกเดิมให้ AVAILABLE
+            // ถ้ามีและเป็นคนละล็อก → ปลดสถานะล็อกเดิมให้ "ว่าง"
             if ($existing && $existing->stall_id !== $stall->stall_id) {
+                // ❗ ไม่อัพเดต booking_id / user_id เป็น null (กันชน NOT NULL)
                 Stall_Status::where('stall_id', $existing->stall_id)
                     ->where('year', $y)->where('month', $m)
                     ->update([
                         'status_id'  => Status::AVAILABLE,
-                        'booking_id' => null,
-                        'user_id'    => null,
                         'reason'     => 'สลับไปจองล็อกอื่น',
                         'updated_at' => now(),
                     ]);
             }
 
-            // อัปเดตหรือสร้าง booking ของ user เดือนนี้ (คีย์ไม่ซ้ำ: user_id, year, month)
-            $booking = Booking::updateOrCreate(
-                ['user_id' => $uid, 'year' => $y, 'month' => $m],
-                ['stall_id' => $stall->stall_id, 'status_id' => Status::PENDING]
-            );
+            // คืนชีพ/สร้าง booking เดือนนี้ (รองรับ soft deleted)
+            $booking = Booking::withTrashed()
+                ->firstOrNew(['user_id' => $uid, 'year' => $y, 'month' => $m]);
 
-            // ตั้งสถานะล็อกใหม่เป็น PENDING และผูก booking นี้
+            if ($booking->trashed()) {
+                $booking->restore();
+            }
+
+            // กำหนดค่าแล้วบันทึกให้มี booking_id แน่นอน
+            $booking->stall_id  = $stall->stall_id;
+            $booking->status_id = Status::PENDING; // 3
+            $booking->save();
+            $booking->refresh();
+
+            // อัพเดตสถานะล็อกของเดือนนี้ให้ "รออนุมัติ" และผูก booking นี้
             Stall_Status::updateOrCreate(
                 ['stall_id' => $stall->stall_id, 'year' => $y, 'month' => $m],
                 [
                     'status_id'  => Status::PENDING,
-                    'booking_id' => $booking->booking_id,
-                    'user_id'    => $uid,
+                    'booking_id' => $booking->booking_id,  // FK ต้องไม่ null
+                    'user_id'    => $uid,                  // ถ้าคอลัมน์นี้ NOT NULL
                     'reason'     => 'รอยืนยันสลิป',
                     'updated_at' => now(),
                 ]
@@ -84,25 +93,22 @@ class BookingController extends Controller
             ->with('ok', 'ยื่นจองสำเร็จ (อัปเดตใบจองเดือนนี้ให้ล็อกนี้แล้ว) กรุณารอการตรวจสอบ');
     }
 
-
-
     /* ---------------------------
      * สถานะการจองของฉัน
      * --------------------------- */
     public function bookingStatus(Request $request)
-    {
-        $items = Booking::with(['stall.zone','status','payments'])
-            ->where('user_id', Auth::id())
-            ->orderByDesc('created_at')
-            ->paginate(12);
+{
+    $items = \App\Models\Booking::withTrashed()   // ← เห็นทั้งที่ลบแบบ soft และที่ยังอยู่
+        ->with(['stall.zone','status','payments'])
+        ->where('user_id', Auth::id())
+        ->orderByDesc('created_at')
+        ->paginate(12);
 
-        return view('vendor.booking_status', compact('items'));
-    }
-
-
+    return view('vendor.booking_status', compact('items'));
+}
 
     /* ---------------------------
-     * ยกเลิกใบจอง (ของฉันเท่านั้น) -> คืนสถานะเป็น AVAILABLE
+     * ยกเลิกใบจอง (ของฉันเท่านั้น)
      * --------------------------- */
     public function cancelBooking(Request $request, Booking $booking)
     {
@@ -114,21 +120,25 @@ class BookingController extends Controller
         }
 
         DB::transaction(function () use ($booking) {
-            $booking->update(['status_id' => Status::AVAILABLE]);
+            // 1) เก็บประวัติด้วยการเปลี่ยนสถานะ
+            $booking->update(['status_id' => Status::CANCEL]); // 5
 
-            // ถ้าไม่มีทริกเกอร์ AFTER UPDATE ให้ sync เอง
+            // 2) คืนล็อกให้ว่าง (อย่าเซ็ต FK เป็น null ถ้าคอลัมน์ NOT NULL)
             Stall_Status::where('stall_id', $booking->stall_id)
                 ->where('year', $booking->year)->where('month', $booking->month)
                 ->update([
                     'status_id'  => Status::AVAILABLE,
                     'reason'     => 'ผู้ใช้ยกเลิก',
-                    'booking_id' => null,
                     'updated_at' => now(),
                 ]);
+
+            // 3) ซ่อนแถวด้วย Soft Delete (ตั้งค่า deleted_at)
+            $booking->delete();   // <= สำคัญ!! ทำให้เป็น soft delete
         });
 
         return back()->with('ok', 'ยกเลิกใบจองเรียบร้อย');
     }
+
 
     private function authorizeActiveStall(Stall $stall): void
     {
