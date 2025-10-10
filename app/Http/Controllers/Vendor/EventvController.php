@@ -4,8 +4,9 @@ namespace App\Http\Controllers\Vendor;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Http\Request;
 
-class EventController extends Controller
+class EventvController extends Controller
 {
     public function eventBoard()
     {

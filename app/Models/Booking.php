@@ -11,10 +11,11 @@ use App\Models\User;
 use App\Models\Stall;
 use App\Models\Payment;
 use App\Models\Status;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Booking extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
     protected $table = 'bookings';
     protected $primaryKey = 'booking_id';

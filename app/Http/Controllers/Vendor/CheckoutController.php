@@ -82,8 +82,6 @@ class CheckoutController extends Controller
                     ->where('year', $y)->where('month', $m)
                     ->update([
                         'status_id'  => Status::AVAILABLE,
-                        'booking_id' => null,
-                        'user_id'    => null,
                         'reason'     => 'สลับไปจองล็อกอื่น',
                         'updated_at' => now(),
                     ]);

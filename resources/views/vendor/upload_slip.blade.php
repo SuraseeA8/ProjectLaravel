@@ -5,15 +5,6 @@
 @section('content')
     <main class="container">
 
-        {{-- สรุป error รวม --}}
-        @if ($errors->any())
-            <div class="alert err">
-                @foreach($errors->all() as $e)
-                    <div>{{ $e }}</div>
-                @endforeach
-            </div>
-        @endif
-
         <h2 class="mb-1">ยืนยันการจอง {{ $stall->stall_code }}</h2>
         <p>เดือนที่จอง: {{ \Carbon\Carbon::create($y, $m)->locale('th')->translatedFormat('F Y') }}</p>
 

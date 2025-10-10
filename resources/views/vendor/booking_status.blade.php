@@ -5,16 +5,6 @@
 @section('content')
     <main class="container">
 
-        {{-- Flash / Errors --}}
-        @if (session('ok'))
-            <div class="alert ok">{{ session('ok') }}</div>
-        @endif
-        @if ($errors->any())
-            <div class="alert err">
-                @foreach($errors->all() as $e) <div>{{ $e }}</div> @endforeach
-            </div>
-        @endif
-
         <h2 class="mb-3">รายการจองของฉัน</h2>
 
         <table border="1" cellpadding="10" style="margin:auto; width:100%; max-width:1000px;">
@@ -23,7 +13,7 @@
                     <th>ล็อก</th>
                     <th>โซน</th>
                     <th>เดือน</th>
-                    <th>ปี</th>
+                    <th>ปี</th>.
                     <th>สถานะ</th>
                     <th>สลิป</th>
                     <th>ยกเลิก</th>
@@ -52,11 +42,7 @@
                             @else{{-- ถ้าใช้ flow ใหม่ (Checkout เท่านั้น) และใบจองนี้ไม่มีสลิป ให้แสดงขีด --}}
                                 —
                             @endif
-                            {{-- หรือถ้าอยากให้ไปหน้า checkout ของล็อกนั้นอีกครั้ง (flow ใหม่) ให้ใช้ลิงก์นี้แทน:
-                            <a
-                                href="{{ route('vendor.stall.checkout', $booking->stall_id) }}?year={{ $booking->year }}&month={{ $booking->month }}">อัปโหลด</a>
-                            --}}
-
+                            
                         </td>
                         <td>
                             @if ($booking->status_id === \App\Models\Status::PENDING)
@@ -79,7 +65,6 @@
         </table>
 
         <div class="mt-3">
-            {{-- ตัวแบ่งหน้า --}}
             {{ $items->links() }}
         </div>
 

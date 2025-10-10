@@ -49,7 +49,6 @@
                                         break;
                                     }
                                 }
-                                // map class ตามสถานะ (คง logic เดิม)
                                 $statusClass = match($status_id) {
                                     1 => 'available',
                                     2 => 'not-available',

@@ -3,34 +3,23 @@
 @section('title', 'เลือกล็อก')
 
 @section('content')
-    {{-- Flash --}}
-    @if (session('ok'))
-        <div class="alert ok">{{ session('ok') }}</div>
-    @endif
-    @if ($errors->any())
-        <div class="alert err">
-            @foreach($errors->all() as $e)
-                <div>{{ $e }}</div>
-            @endforeach
-        </div>
-    @endif
+
 
     {{-- ฟอร์มเลือกเดือน (รับ ค.ศ. ตรง ๆ) --}}
     <form method="GET" action="{{ route('vendor.stalls') }}" class="month-form">
         <label>เดือน :</label>
-
         <select name="month">
-            @foreach (range(1, 12) as $mm)
-                <option value="{{ $mm }}" {{ $mm == $m ? 'selected' : '' }}>
-                    {{ \Carbon\Carbon::create(null, $mm)->locale('th')->translatedFormat('F') }}
+            @foreach (range($startMonth, 12) as $mm)
+                <option value="{{ $mm }}" {{ (int) $mm === (int) $m ? 'selected' : '' }}>
+                    {{ \Carbon\Carbon::createFromDate($y, $mm, 1)->locale('th')->translatedFormat('F') }}
                 </option>
             @endforeach
         </select>
 
         <input type="number" name="year" value="{{ $y }}" min="2025" max="2100">
         <button type="submit">แสดง</button>
-
     </form>
+
 
     {{-- กริดล็อก แบ่งตามโซน --}}
     <section class="zones">
@@ -49,15 +38,13 @@
                     @foreach ($rows as $row)
                         @php
                             $stall = $row['stall'];
-                            $sid   = (int) $row['status_id'];  // กันเคส '5' เป็นสตริง
+                            $sid = (int) $row['status_id']; 
                             $btnClass = match ($sid) {
                                 \App\Models\Status::AVAILABLE => 'btn-available',
                                 \App\Models\Status::UNAVAILABLE => 'btn-unavailable',
                                 \App\Models\Status::PENDING => 'btn-pending',
                                 \App\Models\Status::CLOSED => 'btn-closed',
-                                \App\Models\Status::CANCEL      => 'btn-cancel',   // << เพิ่ม
-                                default => 'btn-unknown',  // << กันพลาดอนาคต
-                                
+                                \App\Models\Status::CANCEL => 'btn-cancel', 
                             };
                             $disabled = in_array($sid, [
                                 \App\Models\Status::UNAVAILABLE,

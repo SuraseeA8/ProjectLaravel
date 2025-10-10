@@ -6,17 +6,6 @@
     <main class="container">
 
         {{-- Flash / Error --}}
-        @if (session('ok'))
-            <div class="alert ok">{{ session('ok') }}</div>
-        @endif
-        @if ($errors->any())
-            <div class="alert err">
-                @foreach($errors->all() as $e)
-                    <div>{{ $e }}</div>
-                @endforeach
-            </div>
-        @endif
-
         @php
             $sid = $monthStatus->status_id ?? \App\Models\Status::AVAILABLE;
             $statusName = match ($sid) {

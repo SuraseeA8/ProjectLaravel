@@ -91,10 +91,11 @@ class BookingController extends Controller
      * --------------------------- */
     public function bookingStatus(Request $request)
     {
-        $items = Booking::with(['stall.zone','status','payments'])
+        $items = Booking::with(['stall.zone', 'status', 'payments'])
+            ->withTrashed()
             ->where('user_id', Auth::id())
-            ->orderByDesc('created_at')
-            ->paginate(12);
+            ->latest()->paginate(12)->withQueryString();
+
 
         return view('vendor.booking_status', compact('items'));
     }
@@ -114,21 +115,26 @@ class BookingController extends Controller
         }
 
         DB::transaction(function () use ($booking) {
-            $booking->update(['status_id' => Status::AVAILABLE]);
+            // 1) เปลี่ยนสถานะใบจองเป็น CANCEL
+            $booking->update(['status_id' => Status::CANCEL]);
 
-            // ถ้าไม่มีทริกเกอร์ AFTER UPDATE ให้ sync เอง
+            // 2) ปลดล็อกเดือนนั้น ๆ
             Stall_Status::where('stall_id', $booking->stall_id)
-                ->where('year', $booking->year)->where('month', $booking->month)
+                ->where('year', $booking->year)
+                ->where('month', $booking->month)
                 ->update([
                     'status_id'  => Status::AVAILABLE,
                     'reason'     => 'ผู้ใช้ยกเลิก',
-                    'booking_id' => null,
                     'updated_at' => now(),
                 ]);
+
+            // 3) Soft delete (ตั้ง deleted_at ให้มีค่า)
+            $booking->delete(); // << จุดสำคัญ
         });
 
         return back()->with('ok', 'ยกเลิกใบจองเรียบร้อย');
     }
+
 
     private function authorizeActiveStall(Stall $stall): void
     {

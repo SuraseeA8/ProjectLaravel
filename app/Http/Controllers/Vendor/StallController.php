@@ -16,16 +16,13 @@ class StallController extends Controller
     public function stallList(Request $request)
     {
         $ym = $this->Ym($request);
-        $y  = (int) $ym['year'];
-        $m  = (int) $ym['month'];  
+        extract($ym);
 
-        // ดึงสถานะรายเดือนทั้งหมด -> keyBy(stall_id)
         $statuses = \App\Models\Stall_Status::query()
-            ->select(['stall_id','status_id'])
+            ->select(['stall_id', 'status_id'])
             ->where('year', $y)->where('month', $m)
             ->get()->keyBy('stall_id');
 
-        // ดึงล็อกที่ใช้งาน + โซน แล้วแม็พสถานะ
         $stalls = \App\Models\Stall::with('zone')
             ->where('is_active', true)
             ->orderByRaw('zone_id, stall_code')
@@ -36,7 +33,7 @@ class StallController extends Controller
                 return [
                     'stall'       => $s,
                     'status_id'   => $sid,
-                    'status_name' => match ($sid) {
+                    'status_name' => match ($sid) {  
                         \App\Models\Status::AVAILABLE   => 'ว่าง',
                         \App\Models\Status::UNAVAILABLE => 'ไม่ว่าง',
                         \App\Models\Status::PENDING     => 'รออนุมัติ',
@@ -46,17 +43,14 @@ class StallController extends Controller
                 ];
             });
 
-        return view('vendor.stalls', compact('stalls','y','m'));
+        return view('vendor.stalls', compact('stalls','y','m','startMonth'));
     }
 
-    /* ---------------------------
-     * รายละเอียดล็อก + ปฏิทินสถานะ
-     * --------------------------- */
+    
     public function stallDetail(Request $request, Stall $stall)
     {
         $ym = $this->Ym($request);
-        $y  = (int) $ym['year'];
-        $m  = (int) $ym['month'];
+        extract($ym);
 
         // สถานะของล็อกในเดือน/ปีนี้
         $monthStatus = Stall_Status::with('status')
@@ -65,7 +59,7 @@ class StallController extends Controller
             ->first();
 
         // ผู้ใช้นี้มีใบจองเดือนนี้อยู่แล้วไหม (นับเฉพาะ active ถ้าคุณอยากให้ยกเลิกแล้วจองใหม่ได้)
-        $hasMyBookingThisMonth = Booking::where('user_id', Auth::id())
+        $BookingThisMonth = Booking::where('user_id', Auth::id())
             ->where('year', $y)->where('month', $m)
             ->whereIn('status_id', [Status::PENDING, Status::UNAVAILABLE]) // นับเฉพาะที่ยังล็อกอยู่
             ->exists();
@@ -75,23 +69,37 @@ class StallController extends Controller
         $cannotReason = null;
 
         if (! $stall->is_active) {
-            $canBook = false; $cannotReason = 'ล็อกนี้ปิดใช้งาน';
-        } elseif ($hasMyBookingThisMonth) {
-            $canBook = false; $cannotReason = 'คุณมีการจองในเดือนนี้อยู่แล้ว (1 คน/เดือน จองได้ 1 ล็อก)';
+            $canBook = false;
+            $cannotReason = 'ล็อกนี้ปิดใช้งาน';
+        } elseif ($BookingThisMonth) {
+            $canBook = false;
+            $cannotReason = 'คุณมีการจองในเดือนนี้อยู่แล้ว (1 คน/เดือน จองได้ 1 ล็อก)';
         } elseif ($monthStatus && in_array($monthStatus->status_id, [Status::UNAVAILABLE, Status::PENDING, Status::CLOSED])) {
-            $canBook = false; $cannotReason = 'เดือนนี้ล็อกนี้ไม่ว่าง/รออนุมัติ/ปิดให้จอง';
+            $canBook = false;
+            $cannotReason = 'เดือนนี้ล็อกนี้ไม่ว่าง/รออนุมัติ/ปิดให้จอง';
         }
-
-        return view('vendor.stall_detail', compact('stall','monthStatus','y','m','canBook','cannotReason'));
+        return view('vendor.stall_detail', compact('stall','y','m','startMonth','monthStatus','canBook','cannotReason'));
     }
 
     private function Ym(Request $request): array
     {
         $now = Carbon::now('Asia/Bangkok');
+
+        $cy  = (int) $now->year;
+        $cm = (int) $now->month;
+
+        $y = $request->integer('year', $cy);
+        $m = $request->integer('month', $cm);
+
+        if ($y < $cy || ($y === $cy && $m < $cm)) {
+            $y = $cy;
+            $m = $cm;
+        };
+
+        $startMonth = ($y === $cy) ? $cm : 1;
+
         return [
-            'year'  => (int)($request->input('year')  ?? $now->year),
-            'month' => (int)($request->input('month') ?? $now->month),
+            'y' => $y,'m' => $m,'cy' => $cy,'cm' => $cm,'startMonth' => $startMonth,'year' => $y,'month' => $m,
         ];
     }
-
 }
