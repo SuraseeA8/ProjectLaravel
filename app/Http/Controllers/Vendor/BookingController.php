@@ -29,7 +29,7 @@ class BookingController extends Controller
         $m = (int) $data['month'];
         $uid = Auth::id();
 
-        $busy = Stall_Status::where('stall_id', $stall->stall_id) 
+        $busy = Stall_Status::where('stall_id', $stall->stall_id)
             ->where('year', $y)->where('month', $m)
             ->whereIn('status_id', [Status::UNAVAILABLE, Status::PENDING, Status::CLOSED])
             ->exists();
@@ -40,28 +40,41 @@ class BookingController extends Controller
         $path = $request->file('slip')->store('slips', 'public');
 
         DB::transaction(function () use ($uid, $stall, $y, $m) {
+            // ล็อกเรคคอร์ดเดือนนี้ของ user (ไม่รวมที่ถูกลบ)
             $existing = Booking::where('user_id', $uid)
                 ->where('year', $y)->where('month', $m)
                 ->lockForUpdate()
                 ->first();
 
-            if ($existing && $existing->stall_id !== $stall->stall_id) {
-                Stall_Status::where('stall_id', $existing->stall_id)
-                    ->where('year', $y)->where('month', $m)
-                    ->update([
-                        'status_id'  => Status::AVAILABLE,
-                        'booking_id' => null,
-                        'user_id'    => null,
-                        'reason'     => 'สลับไปจองล็อกอื่น',
-                        'updated_at' => now(),
-                    ]);
+            if ($existing) {
+                // ถ้าย้ายล็อกจากเดิม → ปลดล็อกสถานะของล็อกเดิม
+                if ($existing->stall_id !== $stall->stall_id) {
+                    Stall_Status::where('stall_id', $existing->stall_id)
+                        ->where('year', $y)->where('month', $m)
+                        ->update([
+                            'status_id'  => Status::AVAILABLE,
+                            'booking_id' => null,
+                            'user_id'    => null,
+                            'reason'     => 'สลับไปจองล็อกอื่น',
+                            'updated_at' => now(),
+                        ]);
+                }
+
+                // ปิดการจองเก่าให้เป็นประวัติ (CANCEL + SoftDelete)
+                $existing->update(['status_id' => Status::CANCEL]);
+                $existing->delete(); // soft delete → filled deleted_at
             }
 
-            $booking = Booking::updateOrCreate(
-                ['user_id' => $uid, 'year' => $y, 'month' => $m],
-                ['stall_id' => $stall->stall_id, 'status_id' => Status::PENDING]
-            );
+            // สร้างการจองใหม่ "เสมอ"
+            $booking = Booking::create([
+                'user_id'   => $uid,
+                'stall_id'  => $stall->stall_id,
+                'year'      => $y,
+                'month'     => $m,
+                'status_id' => Status::PENDING,
+            ]);
 
+            // จองสถานะล็อกเดือนนี้ให้ล็อกใหม่
             Stall_Status::updateOrCreate(
                 ['stall_id' => $stall->stall_id, 'year' => $y, 'month' => $m],
                 [
@@ -73,6 +86,7 @@ class BookingController extends Controller
                 ]
             );
         });
+
 
         return redirect()->route('vendor.booking.status')
             ->with('ok', 'ยื่นจองสำเร็จ (อัปเดตใบจองเดือนนี้ให้ล็อกนี้แล้ว) กรุณารอการตรวจสอบ');
@@ -113,7 +127,7 @@ class BookingController extends Controller
                     'updated_at' => now(),
                 ]);
 
-            $booking->delete(); 
+            $booking->delete();
         });
 
         return back()->with('ok', 'ยกเลิกใบจองเรียบร้อย');

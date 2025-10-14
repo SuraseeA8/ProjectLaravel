@@ -30,7 +30,9 @@ class CheckoutController extends Controller
         $canBook = $stall->is_active
             && ! $hasMyBookingThisMonth
             && ! ($monthStatus && in_array($monthStatus->status_id, [
-                Status::UNAVAILABLE, Status::PENDING, Status::CLOSED
+                Status::UNAVAILABLE,
+                Status::PENDING,
+                Status::CLOSED
             ]));
 
         if (! $canBook) {
@@ -38,7 +40,7 @@ class CheckoutController extends Controller
                 ->withErrors(['slip' => 'เงื่อนไขการจองไม่ผ่าน'])->withInput();
         }
 
-        return view('vendor.upload_slip', compact('stall','y','m'));
+        return view('vendor.upload_slip', compact('stall', 'y', 'm'));
     }
 
     public function checkoutSubmit(Request $request, Stall $stall)
@@ -72,21 +74,33 @@ class CheckoutController extends Controller
                 ->lockForUpdate()
                 ->first();
 
-            if ($existing && $existing->stall_id !== $stall->stall_id) {
-                Stall_Status::where('stall_id', $existing->stall_id)
-                    ->where('year', $y)->where('month', $m)
-                    ->update([
-                        'status_id'  => Status::AVAILABLE,
-                        'reason'     => 'สลับไปจองล็อกอื่น',
-                        'updated_at' => now(),
-                    ]);
+            if ($existing) {
+                if ($existing->stall_id !== $stall->stall_id) {
+                    Stall_Status::where('stall_id', $existing->stall_id)
+                        ->where('year', $y)->where('month', $m)
+                        ->update([
+                            'status_id'  => Status::AVAILABLE,
+                            'booking_id' => null,
+                            'user_id'    => null,
+                            'reason'     => 'สลับไปจองล็อกอื่น',
+                            'updated_at' => now(),
+                        ]);
+                }
+
+                $existing->update(['status_id' => Status::CANCEL]);
+                $existing->delete(); // soft delete
             }
 
-            $booking = Booking::updateOrCreate(
-                ['user_id' => $uid, 'year' => $y, 'month' => $m],
-                ['stall_id' => $stall->stall_id, 'status_id' => Status::PENDING]
-            );
+            // สร้าง booking ใหม่เสมอ
+            $booking = Booking::create([
+                'user_id'   => $uid,
+                'stall_id'  => $stall->stall_id,
+                'year'      => $y,
+                'month'     => $m,
+                'status_id' => Status::PENDING,
+            ]);
 
+            // แนบ payment กับ booking ใหม่
             $booking->payments()->create([
                 'acc_name'     => $data['acc_name'],
                 'bank'         => $data['bank'],
@@ -95,6 +109,7 @@ class CheckoutController extends Controller
                 'slip_path'    => $path,
             ]);
 
+            // อัปเดตสถานะล็อก
             Stall_Status::updateOrCreate(
                 ['stall_id' => $stall->stall_id, 'year' => $y, 'month' => $m],
                 [
@@ -107,11 +122,11 @@ class CheckoutController extends Controller
             );
         });
 
+
         return redirect()->route('vendor.booking.status', [
             'range' => 'month',
             'year'  => $y,
             'month' => $m,
         ])->with('ok', 'ยืนยันการจองเรียบร้อย (ปรับใบจองเดือนนี้ให้ล็อกนี้แล้ว) รอแอดมินตรวจสอบ');
     }
-    
 }
