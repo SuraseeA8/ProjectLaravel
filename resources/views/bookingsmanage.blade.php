@@ -29,7 +29,6 @@
                             <td>{{ $bk->month }}/{{ $bk->year }}</td>
                             <td>{{ $bk->user->users_fname ?? '-' }} {{ $bk->user->users_lname ?? '' }}</td>
 
-                            {{-- ชื่อร้าน --}}
                             @php
 
                                 $shopName = '-';
@@ -42,13 +41,11 @@
                             @endphp
                             <td>{{ $shopName }}</td>
                             @php
-                                // หา payment ล่าสุด (ถ้ามี)
                                 $payment = optional($bk->payments)->last();
                                 $slipUrl = $payment && $payment->slip_path
                                 ? asset('storage/'.$payment->slip_path)
                                 : null;
                             @endphp
-                            {{-- หลักฐานการโอน --}}
                             <td class="text-center">
                                 @if($slipUrl)
                                 <a href="{{ $slipUrl }}" target="_blank">
@@ -59,7 +56,6 @@
                                 @endif
                             </td>
 
-                            {{-- ปุ่มอนุมัติ --}}
                             <td class="text-center">
                                 <a href="{{ route('admin.booking.approve', ['id' => $bk->booking_id]) }}"
                                 class="btn btn-success btn-sm"
@@ -76,7 +72,6 @@
         </table>
     @endsection
 <style>
-    /* ===== Theme ===== */
     :root{
     --brand:#E68F36;
     --brand-2:#d87c2e;
@@ -91,20 +86,18 @@
     font-family:'Kanit', sans-serif;
     }
 
-    /* ===== จัดหน้าให้อยู่กึ่งกลางทั้งหมด โดยไม่แก้ HTML ===== */
     main{
     display:flex;
-    justify-content:center;   /* จัดกลางแนวนอน */
+    justify-content:center;   
     padding:24px 16px;
     }
     main > *{
     width:100%;
-    max-width:1200px;         /* กรอบเนื้อหา */
+    max-width:1200px;         
     margin-left:auto;
     margin-right:auto;
     }
 
-    /* ===== หัวข้อ ===== */
     h2.text-center{
     text-align: center;
     color:var(--brand);
@@ -112,7 +105,6 @@
     margin-bottom:10px;
     }
 
-    /* ===== Alert ให้อยู่กึ่งกลาง และกว้างเท่ากับคอนเทนต์ ===== */
     .alert{
     max-width:1200px;
     margin:12px auto 0;
@@ -122,14 +114,13 @@
     border:1.5px solid #A5D6A7;
     }
 
-    /* ===== ตาราง (อยู่กลาง + ธีมเดียวกัน) ===== */
     .table{
     background:#fff;
-    overflow:hidden;                 /* โค้งหัวตารางเนียน */
+    overflow:hidden;               
     box-shadow:0 6px 16px rgba(0,0,0,.08);
-    margin:16px auto 0;              /* กึ่งกลาง */
+    margin:16px auto 0;              
     width:100%;
-    max-width:1200px;                /* ความกว้างสูงสุด */
+    max-width:1200px;                
     }
 
     .table thead.table-warning{
@@ -153,15 +144,13 @@
     background:#fff;
     }
 
-    /* สลับสีแถว (นิ่ง ไม่ต้อง hover) */
     .table.table-striped > tbody > tr:nth-of-type(even) > *{
     background:#FFF9F3 !important;
     }
     .table tbody tr:hover > *{
-    background:inherit !important;   /* ไม่ให้ไล่สีเวลา hover */
+    background:inherit !important;   
     }
 
-    /* รูปสลิปให้อยู่กลางและมีกรอบนุ่ม ๆ */
     .table td img{
     display:inline-block;
     max-width:90px;
@@ -171,7 +160,7 @@
     }
 
     .btn, .btn a {
-        text-decoration: none !important;  /* ตัดเส้นใต้ */
+        text-decoration: none !important; 
     }
 
 

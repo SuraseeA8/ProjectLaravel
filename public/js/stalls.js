@@ -1,4 +1,3 @@
-// ป้องกันกดซ้ำ: disable ปุ่มทันทีหลัง submit
 document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('form.stall-form').forEach(form => {
         form.addEventListener('submit', () => {

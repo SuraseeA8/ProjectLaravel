@@ -6,7 +6,6 @@
     <div class="edit-container">
         <h2>แก้ไขกิจกรรม</h2>
 
-        {{-- ข้อความสำเร็จ/ผิดพลาด --}}
         @if (session('success'))
             <div class="alert alert-success">{{ session('success') }}</div>
         @endif
@@ -60,7 +59,6 @@
 <style>
     body {
         background: #fffde7;
-        /* เหลืองอ่อน */
     }
 
     .edit-container {

@@ -18,27 +18,27 @@ class StallController extends Controller
         $ym = $this->Ym($request);
         extract($ym);
 
-        $statuses = \App\Models\Stall_Status::query()
+        $statuses = Stall_Status::query()  //สถานะ
             ->select(['stall_id', 'status_id'])
             ->where('year', $y)->where('month', $m)
             ->get()->keyBy('stall_id');
 
-        $stalls = \App\Models\Stall::with('zone')
+        $stalls = Stall::with('zone') 
             ->where('is_active', true)
             ->orderByRaw('zone_id, stall_code')
             ->get()
             ->map(function ($s) use ($statuses) {
-                $st  = $statuses->get($s->stall_id);
-                $sid = $st->status_id ?? \App\Models\Status::AVAILABLE;
+                $st  = $statuses->get($s->stall_id);   //ดึงสถานะ stallst 
+                $sid = $st->status_id ?? Status::AVAILABLE;
                 return [
                     'stall'       => $s,
                     'status_id'   => $sid,
                     'status_name' => match ($sid) {  
-                        \App\Models\Status::AVAILABLE   => 'ว่าง',
-                        \App\Models\Status::UNAVAILABLE => 'ไม่ว่าง',
-                        \App\Models\Status::PENDING     => 'รออนุมัติ',
-                        \App\Models\Status::CLOSED      => 'ปิดให้จอง',
-                        \App\Models\Status::CANCEL     => 'ยกเลิก',
+                        Status::AVAILABLE   => 'ว่าง',
+                        Status::UNAVAILABLE => 'ไม่ว่าง',
+                        Status::PENDING     => 'รออนุมัติ',
+                        Status::CLOSED      => 'ปิดให้จอง',
+                        Status::CANCEL     => 'ยกเลิก',
                     },
                 ];
             });
@@ -52,19 +52,16 @@ class StallController extends Controller
         $ym = $this->Ym($request);
         extract($ym);
 
-        // สถานะของล็อกในเดือน/ปีนี้
         $monthStatus = Stall_Status::with('status')
             ->where('stall_id', $stall->stall_id)
             ->where('year', $y)->where('month', $m)
             ->first();
 
-        // ผู้ใช้นี้มีใบจองเดือนนี้อยู่แล้วไหม (นับเฉพาะ active ถ้าคุณอยากให้ยกเลิกแล้วจองใหม่ได้)
         $BookingThisMonth = Booking::where('user_id', Auth::id())
             ->where('year', $y)->where('month', $m)
-            ->whereIn('status_id', [Status::PENDING, Status::UNAVAILABLE]) // นับเฉพาะที่ยังล็อกอยู่
+            ->whereIn('status_id', [Status::PENDING, Status::UNAVAILABLE]) 
             ->exists();
 
-        // ตัดสินใจว่าจองได้ไหม และเหตุผล
         $canBook = true;
         $cannotReason = null;
 

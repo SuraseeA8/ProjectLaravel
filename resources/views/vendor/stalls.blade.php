@@ -4,8 +4,8 @@
 
 @section('content')
 
+    @php use App\Models\Status; @endphp
 
-    {{-- ฟอร์มเลือกเดือน (รับ ค.ศ. ตรง ๆ) --}}
     <form method="GET" action="{{ route('vendor.stalls') }}" class="month-form">
         <label>เดือน :</label>
         <select name="month">
@@ -21,7 +21,6 @@
     </form>
 
 
-    {{-- กริดล็อก แบ่งตามโซน --}}
     <section class="zones">
         <h2>เลือกล็อกที่ต้องการจอง</h2>
         <div class="legend-wrap">
@@ -40,16 +39,16 @@
                             $stall = $row['stall'];
                             $sid = (int) $row['status_id']; 
                             $btnClass = match ($sid) {
-                                \App\Models\Status::AVAILABLE => 'btn-available',
-                                \App\Models\Status::UNAVAILABLE => 'btn-unavailable',
-                                \App\Models\Status::PENDING => 'btn-pending',
-                                \App\Models\Status::CLOSED => 'btn-closed',
-                                \App\Models\Status::CANCEL => 'btn-cancel', 
+                                Status::AVAILABLE => 'btn-available',
+                                Status::UNAVAILABLE => 'btn-unavailable',
+                                Status::PENDING => 'btn-pending',
+                                Status::CLOSED => 'btn-closed',
+                                Status::CANCEL => 'btn-cancel', 
                             };
                             $disabled = in_array($sid, [
-                                \App\Models\Status::UNAVAILABLE,
-                                \App\Models\Status::PENDING,
-                                \App\Models\Status::CLOSED,
+                                Status::UNAVAILABLE,
+                                Status::PENDING,
+                                Status::CLOSED,
                             ]);
                         @endphp
 
@@ -68,7 +67,6 @@
 <style>
     body {
         background: #fffde7;
-        /* พื้นหลังเหลืองอ่อน */
         font-family: 'Kanit', sans-serif;
     }
 
@@ -76,7 +74,6 @@
         text-align: center;
     }
 
-    /* ฟอร์มเลือกเดือน */
     .month-form {
         text-align: center;
         margin: 20px auto;
@@ -143,7 +140,6 @@
         background: #999;
     }
 
-    /* โซน */
     .zones {
         max-width: 950px;
         margin: 25px auto;
@@ -171,7 +167,6 @@
         background: #fffef7;
     }
 
-    /* กริดล็อก */
     .grid-stalls {
         display: grid;
         grid-template-columns: repeat(2, 70px);
@@ -179,7 +174,6 @@
         justify-content: center;
     }
 
-    /* ปุ่มล็อก */
     .btn-stall {
         display: flex;
         align-items: center;
@@ -201,7 +195,6 @@
         box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
     }
 
-    /* สถานะสี */
     .btn-available {
         background: #4caf50;
         color: white;

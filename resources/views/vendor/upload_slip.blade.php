@@ -14,14 +14,12 @@
             <input type="hidden" name="year" value="{{ $y }}">
             <input type="hidden" name="month" value="{{ $m }}">
 
-            {{-- ชื่อบัญชีผู้โอน --}}
             <div class="mb-2">
                 <label>ชื่อบัญชีผู้โอน <span style="color:red">*</span></label>
                 <input type="text" name="acc_name" class="form-control" value="{{ old('acc_name') }}" required>
                 @error('acc_name')<small class="text-danger">{{ $message }}</small>@enderror
             </div>
 
-            {{-- ธนาคาร --}}
             <div class="mb-2">
                 <label>ธนาคาร <span style="color:red">*</span></label>
                 <input type="text" name="bank" class="form-control" placeholder="เช่น กสิกรไทย" value="{{ old('bank') }}"
@@ -29,7 +27,6 @@
                 @error('bank')<small class="text-danger">{{ $message }}</small>@enderror
             </div>
 
-            {{-- วันที่โอน --}}
             <div class="mb-2">
                 <label>วันที่โอน <span style="color:red">*</span></label>
                 <input type="date" name="payment_date" class="form-control"
@@ -37,7 +34,6 @@
                 @error('payment_date')<small class="text-danger">{{ $message }}</small>@enderror
             </div>
 
-            {{-- จำนวนเงิน --}}
             <div class="mb-2">
                 <label>จำนวนเงิน <span style="color:red">*</span></label>
                 <input type="number" step="0.01" min="0.01" name="amount" class="form-control" placeholder="เช่น 7000.00"
@@ -45,7 +41,6 @@
                 @error('amount')<small class="text-danger">{{ $message }}</small>@enderror
             </div>
 
-            {{-- แนบสลิป --}}
             <div class="mb-3">
                 <label>แนบสลิปโอน <span style="color:red">*</span></label>
                 <input type="file" name="slip" accept=".jpg,.jpeg,.png,.pdf" required class="form-control">
@@ -53,7 +48,6 @@
                 @error('slip')<br><small class="text-danger">{{ $message }}</small>@enderror
             </div>
 
-            {{-- ปุ่ม กลับ + ยืนยัน --}}
             <div class="form-actions">
                 <a href="{{ route('vendor.stall.detail', $stall->stall_id) }}?year={{ $y }}&month={{ $m }}"
                     class="btn back-btn">
@@ -82,7 +76,6 @@
         box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
     }
 
-    /* หัวข้อ */
     h2.mb-1 {
         text-align: center;
         font-size: 24px;
@@ -98,7 +91,6 @@
         color: #555;
     }
 
-    /* กล่อง error */
     .alert.err {
         background: #ffebee;
         border: 1px solid #f44336;
@@ -108,7 +100,6 @@
         margin-bottom: 20px;
     }
 
-    /* label */
     form label {
         font-weight: 600;
         color: #333;
@@ -116,7 +107,6 @@
         margin-bottom: 6px;
     }
 
-    /* input */
     .form-control {
         width: 100%;
         padding: 10px 12px;
@@ -132,13 +122,11 @@
         box-shadow: 0 0 6px rgba(230, 143, 54, 0.4);
     }
 
-    /* ข้อความ error */
     .text-danger {
         color: #d32f2f;
         font-size: 13px;
     }
 
-    /* ปุ่ม */
     .btn {
         display: inline-block;
         padding: 10px 18px;
@@ -170,7 +158,6 @@
         background: #f9f9f9;
     }
 
-    /* จัดปุ่มให้อยู่บรรทัดเดียวกันตรงกลาง */
     .form-actions {
         display: flex;
         justify-content: center;

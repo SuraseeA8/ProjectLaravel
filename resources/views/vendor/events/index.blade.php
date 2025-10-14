@@ -33,7 +33,6 @@
 <style>
     body {
         background: #fffde7;
-        /* เหลืองอ่อน */
     }
 
     .event-container {

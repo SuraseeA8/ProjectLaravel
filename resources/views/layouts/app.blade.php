@@ -6,7 +6,6 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <link rel="stylesheet" href="{{ asset('css/navbar_vendor.css') }}">
     <link href="https://fonts.googleapis.com/css2?family=Kanit&display=swap" rel="stylesheet">
-    {{-- เดิมเขียนผิดเป็น rel="stylesheet" ไปที่ไฟล์ js --}}
     <script src="{{ asset('js/stalls.js') }}" defer></script>
     <title>@yield('title', 'ระบบจองตลาดนัด')</title>
 </head>
@@ -14,10 +13,8 @@
     <header>
         <div class="navbar-container">
             <h1 class="logo">Market Booking</h1>
-            <!-- Navbar -->
             <nav>
                 <ul>
-                    {{-- Guest --}}
                     @guest
                         <li><a href="{{ route('index') }}">หน้าแรก</a></li>
                         <li><a href="{{ route('board') }}">ประกาศ</a></li>
@@ -25,7 +22,6 @@
                         <li><a class="btn" href="{{ route('register') }}">ลงทะเบียน</a></li>
                     @endguest
 
-                    {{-- Auth --}}
                     @auth
                         @if(Auth::user()->role_id == 2)
                             <li><a href="{{ route('vendor.home') }}">หน้าแรก</a></li>

@@ -32,10 +32,8 @@
                         <p>สิ้นสุด: {{ \Carbon\Carbon::parse($event->end_date)->format('d/m/Y') }}</p>
 
                         <div class="actions">
-                            {{-- แก้ไข --}}
                             <a href="{{ route('admin.events.edit', $event) }}" class="btn btn-edit">แก้ไข</a>
 
-                            {{-- ลบ --}}
                             <form action="{{ route('admin.events.destroy', $event) }}" method="POST"
                                 onsubmit="return confirm('ยืนยันลบ {{ $event->title }} ?');">
                                 @csrf

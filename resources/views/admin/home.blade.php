@@ -1,4 +1,3 @@
-{{-- index.blade.php --}}
 @extends('layouts.app')
 
 @section('title', 'หน้าแรก')

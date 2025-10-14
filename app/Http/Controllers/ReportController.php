@@ -10,9 +10,8 @@ class ReportController extends Controller
 {
     public function bookingReport(Request $request)
     {
-        // รับค่าจากฟอร์มใหม่ (select เดือน + input ปี)
-        $month = $request->input('month'); // เลขเดือน เช่น 10
-        $year = $request->input('year');  // ปี ค.ศ. เช่น 2025
+        $month = $request->input('month'); 
+        $year = $request->input('year');  
 
         if ($month && $year) {
             $bookings = Booking::with(['user', 'stall', 'shopDetail'])
@@ -28,7 +27,6 @@ class ReportController extends Controller
                     ];
                 });
 
-            // ✅ คำนวณสรุปผล
             $totalBooked = Booking::where('year', $year)
                 ->where('month', $month)
                 ->count();
@@ -45,7 +43,6 @@ class ReportController extends Controller
             ]);
         }
 
-        // ถ้ายังไม่ได้เลือกเดือน/ปี
         return view('admin.reports.bookings', [
             'bookings' => [],
             'year' => null,

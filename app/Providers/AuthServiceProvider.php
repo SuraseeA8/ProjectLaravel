@@ -9,16 +9,14 @@ use Carbon\Carbon;
 class AuthServiceProvider extends ServiceProvider
 {
     protected $policies = [
-        // 'App\Models\Model' => 'App\Policies\ModelPolicy',
     ];
 
     public function boot(): void
     {
         $this->registerPolicies();
 
-        // ✅ สร้าง Gate admin
         Gate::define('admin', function ($user) {
-            return $user->role_id == 1; // กำหนดว่า role_id = 1 คือ admin
+            return $user->role_id == 1; 
         });
 
         Carbon::setLocale('th');

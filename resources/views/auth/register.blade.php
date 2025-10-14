@@ -136,9 +136,6 @@
                 <label for="users_lname">นามสกุล</label>
                 <input type="text" id="users_lname" name="users_lname" value="{{ old('users_lname') }}" required>
 
-                {{-- อีเมล --}}
-                <label for="email">อีเมล</label>
-                <input type="email" id="email" name="email" value="{{ old('email') }}" required>
 
                 {{-- โทรศัพท์ --}}
                 <label for="phone">เบอร์โทรศัพท์</label>
@@ -151,6 +148,11 @@
                 {{-- รายละเอียดร้าน --}}
                 <label for="description">รายละเอียดร้าน</label>
                 <textarea id="description" name="description" rows="3" maxlength="255">{{ old('description') }}</textarea>
+
+                {{-- อีเมล --}}
+                <label for="email">อีเมล</label>
+                <input type="email" id="email" name="email" value="{{ old('email') }}" required>
+
 
                 {{-- รหัสผ่าน --}}
                 <label for="password">รหัสผ่าน</label>

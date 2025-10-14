@@ -6,7 +6,6 @@
 <div class="container py-4">
     <h2 class="mb-3 text-center">ข้อมูลผู้ค้าและชื่อร้าน</h2>
 
-    {{-- ค้นหา --}}
     <form method="GET" action="" class="mb-3 " style="max-width: 420px;" >
         <input type="text" name="keyword" class="form-control "
             placeholder="ค้นหาชื่อ..."
@@ -33,15 +32,17 @@
             @continue($user->role_id !== 2) {{-- แสดงเฉพาะผู้ค้า --}}
 
             @php
-                // ตัวกรองแบบง่าย ๆ ในมุมมอง (ถ้าอยากให้ไว ให้ย้ายไป where ใน Controller)
+            
+                $shop = $shops->firstWhere('user_id', $user->id);
+                $shopName = $shop->shop_name ?? '-';
+
                 $haystack = mb_strtolower(($user->users_fname ?? '')
+                        .($shop->shop_name ?? '-')
                         .($user->users_lname ?? '')
                         .($user->email ?? ''), 'UTF-8');
                 $visible = ($kw === '') || str_contains($haystack, $kw);
 
-                // หา shop_name จากคอลเลกชัน $shops
-                $shop = $shops->firstWhere('user_id', $user->id);
-                $shopName = $shop->shop_name ?? '-';
+                
             @endphp
 
             @continue(!$visible)
@@ -75,7 +76,6 @@
 @endsection
 
 <style>
-/* ===== Global (ไม่แตะธีมเดิม) ===== */
     :root{
     --brand:#E68F36;
     --brand-2:#d87c2e;
@@ -89,45 +89,43 @@
     font-family:'Kanit',sans-serif;
     }
 
-    /* ===== กล่องหลักให้กึ่งกลาง และจัดวางเนื้อหาตรงกลาง ===== */
     .container.py-4{
     max-width:1200px;
     width:100%;
-    margin:20px auto;           /* กึ่งกลางหน้าจอ */
+    margin:20px auto;           
     padding:24px;
     background:#fff;
     border:2px solid var(--brand);
     border-radius:16px;
     box-shadow:0 8px 24px rgba(0,0,0,.08);
-    display:flex;               /* จัดเลย์เอาต์ภายในเป็นคอลัมน์แล้วกึ่งกลาง */
+    display:flex;              
     flex-direction:column;
-    align-items:center;         /* กึ่งกลางแนวนอนของลูก (เช่น ฟอร์ม/ตาราง) */
+    align-items:center;      
     gap:16px;
     }
 
-    /* ===== หัวข้อ ===== */
     h2.mb-3.text-center{
     color:var(--brand);
     font-weight:700;
-    text-align:center;          /* เผื่อบางหน้ามีคลาสไม่ครบ */
+    text-align:center;        
     width:100%;
     }
 
-    /* ===== ฟอร์มค้นหา “อยู่ตรงกลาง” เสมอ ไม่ว่า wrapper จะเป็นอะไร ===== */
+  
     .container .mb-3,
     .container .mb-3.row,
     .container .mb-3 .col,
     .search-wrap{
     width:100%;
     display:flex;
-    justify-content:center;     /* กึ่งกลางแนวนอน */
+    justify-content:center;     
     }
     .container .mb-3 form,
     .search-wrap form,
     .container form.mb-3{
     width:100%;
-    max-width:480px;            /* ความกว้างฟอร์ม */
-    margin:0 auto;              /* กึ่งกลาง */
+    max-width:480px;           
+    margin:0 auto;      
     }
     .container .mb-3 .form-control,
     .container form.mb-3 .form-control{
@@ -141,11 +139,10 @@
     box-shadow:0 0 0 .2rem rgba(230,143,54,.15);
     }
 
-    /* ===== ตาราง: อยู่กลาง + กว้างเต็มกล่อง + ธีมสวย ===== */
     .table{
     width:100%;
-    max-width:1100px;           /* จำกัดความกว้างสูงสุดเพื่อความอ่านง่าย */
-    margin:0 auto;              /* กึ่งกลางภายใน .container */
+    max-width:1100px;          
+    margin:0 auto;            
     background:#fff;
     overflow:hidden;
     box-shadow:0 6px 16px rgba(0,0,0,.08);
@@ -171,7 +168,6 @@
     background:#FFF9F3 !important;
     }
 
-    /* ===== ปุ่มลบ (เหมือนเดิม) ===== */
     .btn-danger{
     background:#f44336;
     color: white;
@@ -182,7 +178,6 @@
     }
     .btn-danger:hover{ background:#d32f2f; }
 
-    /* ===== เผื่อมี footer ให้กึ่งกลางเต็มแนวกว้าง ===== */
     .site-footer{
     width:100%;
     background:var(--brand);
@@ -190,9 +185,5 @@
     text-align:center;
     padding:14px;
     }
-
-
-
-
 
 </style>

@@ -69,7 +69,6 @@ class ProfileController extends Controller
             'new_password'     => 'required|min:8|confirmed',
         ]);
 
-        // ดึง hash เดิมจากฐานข้อมูล (ไม่พึ่ง $user->password)
         $hashed = DB::table('users')->where('id', Auth::id())->value('password');
 
         if (! Hash::check($request->current_password, $hashed)) {
@@ -79,8 +78,7 @@ class ProfileController extends Controller
 
         DB::table('users')->where('id', Auth::id())->update([
             'password' => Hash::make($request->new_password),
-            // ถ้าไม่มี updated_at ในตาราง อย่าใส่บรรทัดนี้
-            // 'updated_at' => now(),
+            
         ]);
 
         return back()->with('success', 'เปลี่ยนรหัสผ่านเรียบร้อยแล้ว');

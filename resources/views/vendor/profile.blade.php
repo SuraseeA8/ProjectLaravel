@@ -28,7 +28,6 @@
                 </div>
             </form>
 
-            {{-- ฟอร์มรหัสผ่าน (โชว์/ซ่อน) --}}
             <div id="passwordPanel" style="display: {{ session('show_password_panel') ? 'block' : 'none' }}; margin-top:12px;">
             <form action="{{ route('vendor.profile.password') }}" method="POST" class="grid">
                 @csrf
@@ -48,7 +47,6 @@
             </div>
         </div>
 
-        {{-- การ์ด: ข้อมูลร้านค้า (ตาราง shop_details) --}}
         <div class="card">
             <h2>ข้อมูลร้านค้า</h2>
             <form action="{{ route('vendor.shop.update') }}" method="POST" class="grid">
@@ -82,7 +80,6 @@
                 }
                 });
 
-                // เปิดแผงรหัสผ่านอัตโนมัติเมื่อมี error หรือ flag จากเซิร์ฟเวอร์
                 const shouldOpen = {!! json_encode(
                 $errors->hasAny(['current_password','new_password','new_password_confirmation']) || session('show_password_panel')
                 ) !!};
@@ -109,7 +106,6 @@
 
         body{ background:var(--bg); font-family:'Kanit',sans-serif; color:var(--text); }
 
-        /* การ์ดครอบแต่ละส่วน */
         .card{
             background:var(--card);
             border:1.5px solid var(--brand);
@@ -125,17 +121,15 @@
             font-weight:700;
             color:var(--brand);
             margin-bottom:14px;
-            text-align:left;
+            text-align:left; 
         }
 
-        /* ฟอร์มเป็นกริด 2 คอลัมน์ บนจอใหญ่ */
         .card form.grid{
             display:grid;
             grid-template-columns: 1fr 1fr;
             gap:14px 18px;
         }
 
-        /* label + ช่องกรอก */
         .card label{
             font-weight:600;
             color:#222;
@@ -174,11 +168,10 @@
             box-shadow:0 0 0 4px rgba(230,143,54,.15);
         }
 
-        /* แถวปุ่มล่างของแต่ละฟอร์ม */
         .card .row-span.toolbar{
-            grid-column:1 / -1;               /* กินทั้งแถว */
+            grid-column:1 / -1;            
             display:flex;
-            justify-content:space-between;    /* ซ้าย-ขวา */
+            justify-content:space-between;    
             align-items:center;
             gap:12px;
             margin-top:6px;
@@ -219,10 +212,8 @@
             border-color:#cfcfcf;
         }
 
-        /* ข้อความกำกับ */
         .muted{ color:var(--muted); font-size:13px; }
 
-        /* แผงเปลี่ยนรหัสผ่าน */
         #passwordPanel{
             background:#fffdfa;
             border:1px solid #ffe6cc;
@@ -234,34 +225,28 @@
             grid-template-columns: 1fr 1fr;
         }
 
-        /* จัดคู่ label-input ให้อยู่คอลัมน์เดียวกันโดยอัตโนมัติ */
         .card form.grid > label{ align-self:end; }
         .card form.grid > input,
         .card form.grid > textarea{ align-self:start; }
 
-        /* ระยะห่างระหว่างคู่ label/field ให้ดูเป็นบล็อก */
         .card form.grid > label + input,
         .card form.grid > label + textarea{ margin-top:-6px; }
 
-        /* ===== ปรับปุ่มให้เหมือนกันทั้ง 2 หน้า ===== */
-/* สีแบรนด์ (ถ้ายังไม่มีตัวแปร ให้คงค่านี้ไว้) */
         :root{
         --brand:#E68F36;
         --line:#e9e9e9;
         }
 
-        /* 1) จัดแถวปุ่มในหน้า VENDOR ให้อยู่กึ่งกลางเหมือนหน้า ADMIN */
         .card .row-span.toolbar{
         display:flex;
-        justify-content:center;    /* เดิมเป็น space-between */
+        justify-content:center;    /
         align-items:center;
-        gap:12px;                  /* ระยะห่างปุ่ม */
+        gap:12px;                 
         margin-top:6px;
         padding-top:10px;
         border-top:1px dashed var(--line);
         }
 
-        /* 2) จัดแถวปุ่มในหน้า ADMIN ให้อยู่กึ่งกลางเหมือนกัน */
         .container.py-4 .mb-3.text-center,
         .container.py-4 .text-center.mt-4{
         display:flex;
@@ -270,12 +255,11 @@
         gap:12px;
         }
 
-        /* 3) ทำให้ปุ่ม 2 ปุ่ม “หน้าตาเดียวกัน” ทั้งสองหน้า */
-        #togglePasswordBtn,                               /* ปุ่มเปลี่ยนรหัสผ่าน (vendor) */
-        .card .btn-brand,                                 /* ปุ่มบันทึก (vendor) */
-        .container.py-4 .mb-3.text-center .btn,          /* ปุ่มเปลี่ยนรหัสผ่าน (admin) */
-        .container.py-4 .text-center.mt-4 .btn,          /* ปุ่มบันทึก (admin) */
-        .btn-warning, .btn-outline-dark, .btn-ghost {     /* เคสเผื่อใช้คลาสเดิม */
+        #togglePasswordBtn,                               
+        .card .btn-brand,                               
+        .container.py-4 .mb-3.text-center .btn,         
+        .container.py-4 .text-center.mt-4 .btn,        
+        .btn-warning, .btn-outline-dark, .btn-ghost {     
         background: var(--brand) !important;
         color: #fff !important;
         border: 1px solid transparent !important;
@@ -284,7 +268,7 @@
         font-weight: 700 !important;
         box-shadow: 0 6px 16px rgba(230,143,54,.28) !important;
         transition: transform .15s ease, box-shadow .2s !important;
-        min-width: 220px;            /* กว้างเท่ากันทั้งสองปุ่ม */
+        min-width: 220px;           
         }
         #togglePasswordBtn:hover,
         .card .btn-brand:hover,
@@ -295,7 +279,6 @@
         background: #d87c2e !important;
         }
 
-        /* 4) เผื่อมี margin/align แปลก ๆ จาก Bootstrap — เน้นให้อยู่กลางจริง ๆ */
         .container.py-4{
         margin-left:auto !important;
         margin-right:auto !important;

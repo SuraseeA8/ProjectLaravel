@@ -7,7 +7,6 @@
         <div class="h-center">
             <h2 class="mb-4 text-center">รายงานการจองประจำเดือน</h2>
 
-            {{-- ฟอร์มเลือกเดือน --}}
             <form method="GET" action="{{ route('admin.reports.bookings') }}" class="month-form">
                 <label>เดือน :</label>
 
@@ -24,7 +23,6 @@
             </form>
         </div>
 
-        {{-- ตารางรายงาน --}}
         @if(!empty($bookings))
             <div class="report-card">
                 <table class="report-table">
@@ -49,7 +47,6 @@
                 </table>
             </div>
 
-            {{-- กล่องสรุปผล --}}
             <div class="report-summary">
                 <h3>สรุปผลการจอง</h3>
                 <p>เดือน / ปี :

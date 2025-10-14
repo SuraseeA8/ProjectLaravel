@@ -39,7 +39,7 @@
                         <td>
                             @if ($payment && $payment->slip_path)
                                 <a href="{{ asset('storage/' . $payment->slip_path) }}" target="_blank">ดูสลิป</a>
-                            @else{{-- ถ้าใช้ flow ใหม่ (Checkout เท่านั้น) และใบจองนี้ไม่มีสลิป ให้แสดงขีด --}}
+                            @else
                                 —
                             @endif
                             

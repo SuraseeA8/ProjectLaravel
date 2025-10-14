@@ -19,16 +19,13 @@
             </div>
         @endif
 
-        {{-- ฟอร์มเดียว: อัปเดตโปรไฟล์ + (ถ้ากรอกรหัส) เปลี่ยนรหัสผ่าน --}}
         <form action="{{ route('admin.profile.update') }}" method="POST" autocomplete="off">
             @csrf
             @method('PUT')
 
-            {{-- ป้องกัน auto-fill ของเบราว์เซอร์ --}}
             <input type="text" name="fake_user"  autocomplete="username" style="display:none">
             <input type="password" name="fake_pass" autocomplete="new-password" style="display:none">
 
-            {{-- ชื่อ --}}
             <div class="mb-3">
                 <label class="form-label fw-bold">ชื่อ</label>
                 <input type="text" name="Users_Fname" class="form-control rounded-pill border-warning"
@@ -36,7 +33,6 @@
                 @error('Users_Fname') <div class="text-danger">{{ $message }}</div> @enderror
             </div>
 
-            {{-- นามสกุล --}}
             <div class="mb-3">
                 <label class="form-label fw-bold">นามสกุล</label>
                 <input type="text" name="Users_Lname" class="form-control rounded-pill border-warning"
@@ -44,7 +40,6 @@
                 @error('Users_Lname') <div class="text-danger">{{ $message }}</div> @enderror
             </div>
 
-            {{-- อีเมล --}}
             <div class="mb-3">
                 <label class="form-label fw-bold">อีเมล</label>
                 <input type="email" name="Email" class="form-control rounded-pill border-warning"
@@ -52,7 +47,6 @@
                 @error('Email') <div class="text-danger">{{ $message }}</div> @enderror
             </div>
 
-            {{-- เบอร์โทร (ใช้เฉพาะคอลัมน์ phone) --}}
             <div class="mb-3">
                 <label class="form-label fw-bold">เบอร์โทร</label>
                 <input type="tel" name="phone" class="form-control rounded-pill border-warning"
@@ -62,14 +56,12 @@
                 @error('phone') <div class="text-danger">{{ $message }}</div> @enderror
             </div>
 
-            {{-- ปุ่มโชว์/ซ่อน ส่วนเปลี่ยนรหัสผ่าน --}}
             <div class="mb-3 text-center">
                 <button type="button" class="btn btn-outline-dark rounded-pill" onclick="togglePasswordSection()">
                     เปลี่ยนรหัสผ่าน
                 </button>
             </div>
 
-            {{-- ส่วนรหัสผ่าน (ซ่อนไว้ก่อน) --}}
             <div id="passwordSection" style="display:none;">
 
 
@@ -130,21 +122,19 @@ function togglePasswordSection() {
     --shadow:0 8px 24px rgba(0,0,0,.08);
     }
 
-    /* โทนรวม */
     body{
     background:var(--bg);
     font-family:'Kanit', system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans Thai", sans-serif;
     color:var(--text);
     }
 
-    /* ===== จัดบล็อกให้อยู่กึ่งกลางหน้า ===== */
     .container.py-4{
-    /* inline style เดิมมี max-width:700px แล้ว — เราเน้นให้กึ่งกลางชัดเจน */
+    
     margin-left:auto !important;
     margin-right:auto !important;
     margin-top: 30px !important;
     margin-bottom: 30px !important;
-    max-width:700px !important;     /* ยึดตาม inline ที่คุณตั้งไว้ */
+    max-width:700px !important;  
     }
     .container.py-4 > .card{
     background:var(--card) !important;
@@ -152,11 +142,10 @@ function togglePasswordSection() {
     border-radius:16px !important;
     box-shadow:var(--shadow) !important;
     padding:24px !important;
-    margin-left:auto !important;     /* เผื่อ container ถูกครอบด้วย grid อื่น */
+    margin-left:auto !important;     
     margin-right:auto !important;
     }
 
-    /* หัวข้อการ์ด */
     .container.py-4 h4{
     font-size:22px;
     font-weight:700;
@@ -166,10 +155,9 @@ function togglePasswordSection() {
 
     
 
-    /* ===== FORM LAYOUT (เดสก์ท็อป) ===== */
     .container.py-4 form .mb-3{
     display:grid;
-    grid-template-columns: 260px 1fr;  /* ซ้าย label 260px, ขวา input */
+    grid-template-columns: 260px 1fr;  
     align-items:center;
     column-gap:18px;
     row-gap:8px;
@@ -183,7 +171,6 @@ function togglePasswordSection() {
     padding-right:4px;
     }
 
-    /* อินพุต & เท็กซ์แอเรีย */
     .form-control{
     border:1.5px solid #ddd !important;
     border-radius:10px !important;
@@ -198,13 +185,11 @@ function togglePasswordSection() {
     box-shadow:0 0 0 4px rgba(230,143,54,.15) !important;
     }
 
-    /* ป้องกัน BG เหลือง AutoFill */
     input:-webkit-autofill{
     -webkit-box-shadow: 0 0 0px 1000px #fff inset !important;
     -webkit-text-fill-color: var(--text) !important;
     }
 
-    /* ===== ปุ่ม ปรับให้สองปุ่ม “เหมือนกัน” ===== */
     .btn{
     border-radius:999px !important;
     padding:10px 18px !important;
@@ -215,7 +200,6 @@ function togglePasswordSection() {
     }
     .btn:hover{ transform:translateY(-1px); }
 
-    /* ปุ่มบันทึก (เดิม) */
     .btn-warning{
     background:var(--brand) !important;
     color:#fff !important;
@@ -224,7 +208,6 @@ function togglePasswordSection() {
     }
     .btn-warning:hover{ background:#d87c2e !important; }
 
-    /* ปุ่ม “เปลี่ยนรหัสผ่าน” ให้เหมือนปุ่มบันทึก */
     .container.py-4 .mb-3.text-center .btn{
     min-width:220px;
     background:var(--brand) !important;
@@ -236,7 +219,6 @@ function togglePasswordSection() {
     background:#d87c2e !important;
     }
 
-    /* ===== แผงเปลี่ยนรหัสผ่าน ===== */
     #passwordSection{
     background:#fffdfa;
     border:1px solid #ffe6cc;
@@ -257,13 +239,11 @@ function togglePasswordSection() {
     row-gap:8px;
     }
 
-    /* แถวปุ่มบันทึกด้านล่าง */
     .container.py-4 .text-center.mt-4{
     border-top:1px dashed var(--line);
     padding-top:12px;
     }
 
-    /* แจ้งเตือน */
     .alert-success{
     background:#e8f5e9 !important;
     border:1px solid #4CAF50 !important;
@@ -277,25 +257,23 @@ function togglePasswordSection() {
     border-radius:10px;
     }
 
-    /* ===== ปรับปุ่มให้เหมือนกันทั้ง 2 หน้า ===== */
-/* สีแบรนด์ (ถ้ายังไม่มีตัวแปร ให้คงค่านี้ไว้) */
     :root{
     --brand:#E68F36;
     --line:#e9e9e9;
     }
 
-    /* 1) จัดแถวปุ่มในหน้า VENDOR ให้อยู่กึ่งกลางเหมือนหน้า ADMIN */
+   
     .card .row-span.toolbar{
     display:flex;
-    justify-content:center;    /* เดิมเป็น space-between */
+    justify-content:center;   
     align-items:center;
-    gap:12px;                  /* ระยะห่างปุ่ม */
+    gap:12px;                 
     margin-top:6px;
     padding-top:10px;
     border-top:1px dashed var(--line);
     }
 
-    /* 2) จัดแถวปุ่มในหน้า ADMIN ให้อยู่กึ่งกลางเหมือนกัน */
+    
     .container.py-4 .mb-3.text-center,
     .container.py-4 .text-center.mt-4{
     display:flex;
@@ -304,12 +282,11 @@ function togglePasswordSection() {
     gap:12px;
     }
 
-    /* 3) ทำให้ปุ่ม 2 ปุ่ม “หน้าตาเดียวกัน” ทั้งสองหน้า */
-    #togglePasswordBtn,                               /* ปุ่มเปลี่ยนรหัสผ่าน (vendor) */
-    .card .btn-brand,                                 /* ปุ่มบันทึก (vendor) */
-    .container.py-4 .mb-3.text-center .btn,          /* ปุ่มเปลี่ยนรหัสผ่าน (admin) */
-    .container.py-4 .text-center.mt-4 .btn,          /* ปุ่มบันทึก (admin) */
-    .btn-warning, .btn-outline-dark, .btn-ghost {     /* เคสเผื่อใช้คลาสเดิม */
+    #togglePasswordBtn,                               
+    .card .btn-brand,                                 
+    .container.py-4 .mb-3.text-center .btn,          
+    .container.py-4 .text-center.mt-4 .btn,          
+    .btn-warning, .btn-outline-dark, .btn-ghost {    
     background: var(--brand) !important;
     color: #fff !important;
     border: 1px solid transparent !important;
@@ -318,7 +295,7 @@ function togglePasswordSection() {
     font-weight: 700 !important;
     box-shadow: 0 6px 16px rgba(230,143,54,.28) !important;
     transition: transform .15s ease, box-shadow .2s !important;
-    min-width: 220px;            /* กว้างเท่ากันทั้งสองปุ่ม */
+    min-width: 220px;            
     }
     #togglePasswordBtn:hover,
     .card .btn-brand:hover,
@@ -329,7 +306,6 @@ function togglePasswordSection() {
     background: #d87c2e !important;
     }
 
-    /* 4) เผื่อมี margin/align แปลก ๆ จาก Bootstrap — เน้นให้อยู่กลางจริง ๆ */
     .container.py-4{
     margin-left:auto !important;
     margin-right:auto !important;

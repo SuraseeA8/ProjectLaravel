@@ -19,7 +19,6 @@ class CheckoutController extends Controller
         $y = (int) $request->query('year');
         $m = (int) $request->query('month');
 
-        // ตรวจสิทธิ์เข้า checkout (กดดูได้เฉพาะที่จองได้จริง)
         $monthStatus = Stall_Status::where('stall_id', $stall->stall_id)
             ->where('year', $y)->where('month', $m)->first();
 
@@ -57,7 +56,6 @@ class CheckoutController extends Controller
         $m = (int) $data['month'];
         $uid = Auth::id();
 
-        // ล็อกนี้เดือนนี้ต้องว่างจริง
         $busy = Stall_Status::where('stall_id', $stall->stall_id)
             ->where('year', $y)->where('month', $m)
             ->whereIn('status_id', [Status::UNAVAILABLE, Status::PENDING, Status::CLOSED])
@@ -66,17 +64,14 @@ class CheckoutController extends Controller
             return back()->withErrors(['month' => 'เดือนนี้ล็อกนี้ไม่ว่างแล้ว'])->withInput();
         }
 
-        // เก็บไฟล์สลิป
         $path = $request->file('slip')->store('slips', 'public');
 
         DB::transaction(function () use ($uid, $stall, $y, $m, $data, $path) {
-            // หา booking เดิมเดือนนี้
             $existing = Booking::where('user_id', $uid)
                 ->where('year', $y)->where('month', $m)
                 ->lockForUpdate()
                 ->first();
 
-            // ถ้ามีและล็อกเดิม != ล็อกใหม่ -> ปลดล็อกเดิม
             if ($existing && $existing->stall_id !== $stall->stall_id) {
                 Stall_Status::where('stall_id', $existing->stall_id)
                     ->where('year', $y)->where('month', $m)
@@ -87,13 +82,11 @@ class CheckoutController extends Controller
                     ]);
             }
 
-            // อัปเดต/สร้าง booking เดิมเดือนนี้ -> ผูกล็อกใหม่ + PENDING
             $booking = Booking::updateOrCreate(
                 ['user_id' => $uid, 'year' => $y, 'month' => $m],
                 ['stall_id' => $stall->stall_id, 'status_id' => Status::PENDING]
             );
 
-            // แนบสลิป (อัปเดต/สร้างรายการจ่ายใหม่)
             $booking->payments()->create([
                 'acc_name'     => $data['acc_name'],
                 'bank'         => $data['bank'],
@@ -102,7 +95,6 @@ class CheckoutController extends Controller
                 'slip_path'    => $path,
             ]);
 
-            // ทำให้สถานะล็อกใหม่เป็น PENDING
             Stall_Status::updateOrCreate(
                 ['stall_id' => $stall->stall_id, 'year' => $y, 'month' => $m],
                 [

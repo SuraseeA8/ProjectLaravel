@@ -4,22 +4,21 @@
 
 @section('content')
     <main class="container">
-
-        {{-- Flash / Error --}}
+        @php use App\Models\Status; @endphp
         @php
-            $sid = $monthStatus->status_id ?? \App\Models\Status::AVAILABLE;
+            $sid = $monthStatus->status_id ?? Status::AVAILABLE;
             $statusName = match ($sid) {
-                \App\Models\Status::AVAILABLE => 'ว่าง',
-                \App\Models\Status::UNAVAILABLE => 'ไม่ว่าง',
-                \App\Models\Status::PENDING => 'รออนุมัติ',
-                \App\Models\Status::CLOSED => 'ปิดให้จอง',
+                Status::AVAILABLE => 'ว่าง',
+                Status::UNAVAILABLE => 'ไม่ว่าง',
+                Status::PENDING => 'รออนุมัติ',
+                Status::CLOSED => 'ปิดให้จอง',
                 default => 'ไม่ทราบสถานะ',
             };
             $statusClass = match ($sid) {
-                \App\Models\Status::AVAILABLE => 'badge-available',
-                \App\Models\Status::UNAVAILABLE => 'badge-unavailable',
-                \App\Models\Status::PENDING => 'badge-pending',
-                \App\Models\Status::CLOSED => 'badge-closed',
+                Status::AVAILABLE => 'badge-available',
+                Status::UNAVAILABLE => 'badge-unavailable',
+                Status::PENDING => 'badge-pending',
+                Status::CLOSED => 'badge-closed',
                 default => 'badge-neutral',
             };
         @endphp
@@ -50,7 +49,6 @@
             </div>
         </section>
 
-        {{-- ปุ่มย้อนกลับ + ปุ่มจอง --}}
         <section class="action-row">
             <a href="{{ route('vendor.stalls', ['year' => $y, 'month' => $m]) }}" class="btn back-btn">
                 ← กลับไปหน้าล็อก
@@ -79,7 +77,6 @@
         padding: 20px;
     }
 
-    /* Header */
     header.mb-3 {
         text-align: center;
         padding: 20px;
@@ -102,7 +99,7 @@
         color: #666;
     }
 
-    /* การ์ด */
+   
     .card {
         background: #fff;
         border: 2px solid #E68F36;
@@ -146,7 +143,6 @@
         background: #ccc;
     }
 
-    /* ปุ่ม */
     .btn {
         display: inline-block;
         padding: 10px 20px;
@@ -179,7 +175,6 @@
         box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
     }
 
-    /* ปุ่มย้อนกลับ + ปุ่มจอง อยู่บรรทัดเดียว ตรงกลาง */
     .action-row {
         display: flex;
         justify-content: center;
@@ -198,7 +193,6 @@
         background: #f9f9f9;
     }
 
-    /* Flash */
     .alert.ok {
         background: #e8f5e9;
         border: 1px solid #4CAF50;

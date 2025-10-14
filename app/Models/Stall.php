@@ -13,7 +13,6 @@ class Stall extends Model
 
     protected $table = 'stalls';
     protected $primaryKey = 'stall_id';
-    // protected $timestamps = true; // ค่าดีฟอลต์เป็น true อยู่แล้ว
 
     protected $fillable = [
         'zone_id',
@@ -24,7 +23,7 @@ class Stall extends Model
         'price',
         'location',
         'stall_condition',
-        'is_active',        // ✅ เพิ่ม ถ้าจะอัปเดตจากฟอร์ม/แอดมิน
+        'is_active',       
     ];
 
     protected $casts = [
@@ -44,7 +43,6 @@ class Stall extends Model
     /** ความสัมพันธ์สถานะรายเดือน */
     public function statuses(): HasMany
     {
-        // ✅ ให้ชื่อคลาสตรงกับของจริง
         return $this->hasMany(\App\Models\Stall_Status::class, 'stall_id', 'stall_id');
     }
 
@@ -64,10 +62,9 @@ class Stall extends Model
             ->first();
     }
 
-    /** 🔎 ใช้ซ้ำได้: เฉพาะล็อกที่เปิดใช้งาน */
+    /**  ใช้ซ้ำได้: เฉพาะล็อกที่เปิดใช้งาน */
     public function scopeActive($q)
     {
         return $q->where('is_active', true);
     }
 }
-// --- IGNORE ---
