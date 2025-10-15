@@ -40,14 +40,12 @@ class BookingController extends Controller
         $path = $request->file('slip')->store('slips', 'public');
 
         DB::transaction(function () use ($uid, $stall, $y, $m) {
-            // ล็อกเรคคอร์ดเดือนนี้ของ user (ไม่รวมที่ถูกลบ)
             $existing = Booking::where('user_id', $uid)
                 ->where('year', $y)->where('month', $m)
                 ->lockForUpdate()
                 ->first();
 
             if ($existing) {
-                // ถ้าย้ายล็อกจากเดิม → ปลดล็อกสถานะของล็อกเดิม
                 if ($existing->stall_id !== $stall->stall_id) {
                     Stall_Status::where('stall_id', $existing->stall_id)
                         ->where('year', $y)->where('month', $m)
@@ -60,12 +58,11 @@ class BookingController extends Controller
                         ]);
                 }
 
-                // ปิดการจองเก่าให้เป็นประวัติ (CANCEL + SoftDelete)
+            
                 $existing->update(['status_id' => Status::CANCEL]);
-                $existing->delete(); // soft delete → filled deleted_at
+                $existing->delete(); 
             }
 
-            // สร้างการจองใหม่ "เสมอ"
             $booking = Booking::create([
                 'user_id'   => $uid,
                 'stall_id'  => $stall->stall_id,
@@ -74,7 +71,6 @@ class BookingController extends Controller
                 'status_id' => Status::PENDING,
             ]);
 
-            // จองสถานะล็อกเดือนนี้ให้ล็อกใหม่
             Stall_Status::updateOrCreate(
                 ['stall_id' => $stall->stall_id, 'year' => $y, 'month' => $m],
                 [

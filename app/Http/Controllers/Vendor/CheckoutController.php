@@ -88,10 +88,9 @@ class CheckoutController extends Controller
                 }
 
                 $existing->update(['status_id' => Status::CANCEL]);
-                $existing->delete(); // soft delete
+                $existing->delete(); 
             }
 
-            // สร้าง booking ใหม่เสมอ
             $booking = Booking::create([
                 'user_id'   => $uid,
                 'stall_id'  => $stall->stall_id,
@@ -100,7 +99,6 @@ class CheckoutController extends Controller
                 'status_id' => Status::PENDING,
             ]);
 
-            // แนบ payment กับ booking ใหม่
             $booking->payments()->create([
                 'acc_name'     => $data['acc_name'],
                 'bank'         => $data['bank'],
@@ -109,7 +107,6 @@ class CheckoutController extends Controller
                 'slip_path'    => $path,
             ]);
 
-            // อัปเดตสถานะล็อก
             Stall_Status::updateOrCreate(
                 ['stall_id' => $stall->stall_id, 'year' => $y, 'month' => $m],
                 [
